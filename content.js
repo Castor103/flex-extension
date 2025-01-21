@@ -194,7 +194,6 @@
               }
               return text
             }
-            console.log('restNeedWorkTimePerDay', restNeedWorkTimePerDay)
 
             // 표출 부.
             const section = document.querySelector('.c-dHHzzw > *')
