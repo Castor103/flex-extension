@@ -31,7 +31,7 @@
 
       // 로그인 여부 판단
       if (requiresLogin) {
-        chrome.runtime.sendMessage({ requiresLogin: true })
+        //
       } else {
         waitForSectionElement().then(() => {
           const updateTime = new Date().toISOString()
@@ -44,11 +44,10 @@
           const todayWorkTime = getElementsWithClass('div.c-klJrXp')
 
           const totalWorkDoneTime = getElementsWithClass('span.c-hotmRC')
-          const totalWorkDoneTimeFormatting = totalWorkDoneTime.split(':')
-          const totalWorkDoneTimeHour = Number(totalWorkDoneTimeFormatting[0])
-          const totalWorkDoneTimeMin = Number(totalWorkDoneTimeFormatting[1])
+        
 
           if (totalWorkDoneTime === 'N/A') {
+            //
             return
           } else {
             // 휴가 검색용 클래스 필터값
@@ -87,6 +86,10 @@
             const averageWorkTime = averageResult.averageDailyWorkHours
             const totalMinutesWorked = averageResult.totalMinutesWorked
 
+            const totalWorkDoneTimeFormatting = totalWorkDoneTime.split(':')
+            const totalWorkDoneTimeHour = Math.floor(Number(totalMinutesWorked / 60))
+            const totalWorkDoneTimeMin = Number(totalMinutesWorked % 60)
+
             const restEffectiveWeekdays =
               totalEffectiveWeekdays - workdoneDayCount
             let restNeedTime =
@@ -102,6 +105,7 @@
             ).toFixed(2)
             const restNeedWorkTimePerDayFormatting =
               restNeedWorkTimePerDay.split('.')
+              
             const restNeedWorkTimePerDayHour = Math.floor(
               restNeedWorkTimePerDay,
             )
@@ -460,7 +464,7 @@ function dataParserFromHtml(htmlContent) {
 
 function waitForSectionElement() {
   return new Promise((resolve) => {
-    const timeout1 = setTimeout(() => reject('Timeout reached'), 5 * 1000) // 최대 5초 대기
+    const timeout1 = setTimeout("", 330)
     const checkSection = () => {
       const sectionElement = document.querySelector(
         'section[data-scope="page"][data-part="content"]',
@@ -469,7 +473,7 @@ function waitForSectionElement() {
         clearTimeout(timeout1) // 타임아웃 해제
         resolve(true) // 조건이 충족되면 완료
       } else {
-        setTimeout(checkSection, 500) // 조건을 만족할 때까지 반복 확인
+        setTimeout(checkSection, 100) // 조건을 만족할 때까지 반복 확인
       }
     }
     checkSection()

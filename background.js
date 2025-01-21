@@ -1,8 +1,8 @@
 chrome.runtime.onInstalled.addListener(() => {
   // console.log('Flex 근무 계산 확장 (by NARASPACE) Extension Installed!')
-
   checkTabInfo()
-  setInterval(checkTabInfo, 10 * 1000) // 10s = 10 * 1000 ms
+
+  setInterval(checkTabInfo, 1 * 1000) // 1s = 1 * 1000 ms
 })
 
 function checkTabInfo() {
@@ -23,6 +23,7 @@ function checkTabInfo() {
           files: ['content.js'],
         })
       })
+     
     } else {
       // console.log('해당 URL을 가진 탭이 없습니다.')
     }
