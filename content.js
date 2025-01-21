@@ -120,8 +120,8 @@
             //console.log(`오늘까지의 평일 갯수: ${totalWeekdays}`);
 
             // 상시 획득 가능 값
-            console.log(`근무 상태: ${workStatus}`)
-            console.log(`금일 근로시간: ${todayWorkTime}`)
+            // console.log(`근무 상태: ${workStatus}`)
+            // console.log(`금일 근로시간: ${todayWorkTime}`)
             //console.log(`당월 신청한 연월차 수: ${leaveDays}`);
             //console.log(`당월 일일 총 개수: ${findObj.parantObj.length}`);
             //console.log(`금일까지의 근로 가능일: ${workdoneDayCount} 일`);
@@ -194,7 +194,6 @@
               }
               return text
             }
-            console.log('restNeedWorkTimePerDay', restNeedWorkTimePerDay)
 
             // 표출 부.
             const section = document.querySelector('.c-dHHzzw > *')
@@ -506,7 +505,7 @@ function getPathWithClass() {
       // "M8.527 5.166A.982.982 0 0 0 7 5.983v12.034a.982.982 0 0 0 1.527.817l9.036-6.017a.98.98 0 0 0 0-1.633L8.527 5.166Z"
       return ''
     } else {
-      console.log('Path Attributes.fill:', pathAttributes[0].fill)
+      // console.log('Path Attributes.fill:', pathAttributes[0].fill)
       //console.log('Path Attributes.d:', pathAttributes[0].d);
       return '-'
     }
