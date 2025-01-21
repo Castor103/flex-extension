@@ -6,24 +6,15 @@
     fetchDataFunction()
   }
 
+  // element 생성
   function createElement(tag, options = {}) {
-    const { className, content, attributes = {}, style = {} } = options
+    const { content, attributes = {} } = options
     const element = document.createElement(tag)
 
-    // 클래스 설정
-    if (className) element.className = className
-
-    // 내용 설정
+    // 설정
     if (content) element.innerHTML = content
-
-    // 속성 설정
     Object.entries(attributes).forEach(([key, value]) => {
       element.setAttribute(key, value)
-    })
-
-    // 스타일 설정
-    Object.entries(style).forEach(([key, value]) => {
-      element.style[key] = value
     })
 
     return element
@@ -53,6 +44,9 @@
           const todayWorkTime = getElementsWithClass('div.c-klJrXp')
 
           const totalWorkDoneTime = getElementsWithClass('span.c-hotmRC')
+          const totalWorkDoneTimeFormatting = totalWorkDoneTime.split(':')
+          const totalWorkDoneTimeHour = Number(totalWorkDoneTimeFormatting[0])
+          const totalWorkDoneTimeMin = Number(totalWorkDoneTimeFormatting[1])
 
           if (totalWorkDoneTime === 'N/A') {
             return
@@ -106,6 +100,14 @@
               restEffectiveWeekdays /
               60
             ).toFixed(2)
+            const restNeedWorkTimePerDayFormatting =
+              restNeedWorkTimePerDay.split('.')
+            const restNeedWorkTimePerDayHour = Math.floor(
+              restNeedWorkTimePerDay,
+            )
+            const restNeedWorkTimePerDayMin = Math.round(
+              (restNeedWorkTimePerDay - restNeedWorkTimePerDayHour) * 60,
+            )
 
             // 업데이트된 시간 표시
             const timestampString = formatTimestampToKST(updateTime)
@@ -141,30 +143,108 @@
             // 당월 잔여 근무 시간: 877 분
             // 당월 잔여 근무 시간 / 일: 2.92 시간
 
-            // 표출 부.
-            const section = document.querySelector(
-              "section[data-scope='page'][data-part='content']",
-            )
+            // text 생성
+            const monthHours = totalEffectiveWeekdays * 7
+            const compareTime =
+              totalWorkDoneTimeHour * 60 + totalWorkDoneTimeMin
+            const timePercentage = (compareTime / (monthHours * 60)) * 100
+            function createText(type) {
+              let text
+              switch (type) {
+                case 'working_day':
+                  text = `
+                    <span class="custom-ui__title-wrap">
+                      <span class="custom-ui__title">근무일</span>
+                      <span class="custom-ui__tooltip">휴가일을 포함하여 근무일이 계산됩니다.<br/>(현재 근무일 / 당월 의무 근무일)</span>
+                    </span>
+                    <span class="today">${workdoneDayCount}일</span>
+                    <span class="total">${totalEffectiveWeekdays}일</span>
+                  `
+                  break
+                case 'working_time':
+                  text = `
+                    <span class="custom-ui__title-wrap">
+                      <span class="custom-ui__title">근무시간</span>
+                      <span class="custom-ui__tooltip">휴가일을 포함하여 근무시간이 계산됩니다.<br/>(현재 총 근무시간 / 당월 의무 근무시간 (달성률))</span>
+                    </span>
+                    <span class="today">${totalWorkDoneTimeHour}시간 ${totalWorkDoneTimeMin}분</span>
+                    <span class="total">${monthHours}시간</span>
+                    <span class="percent">(${timePercentage.toFixed(2)}%)</span>
+                  `
+                  break
+                case 'working_leftover':
+                  text = `
+                    <span class="custom-ui__title-wrap">
+                      <span class="custom-ui__title">잔여시간</span>
+                      <span class="custom-ui__tooltip">휴가일을 포함하여 잔여 근무시간이 계산됩니다.<br/>잔여 근무시간 (잔여 일당 최소 근무시간)</span>
+                    </span>
+                     <span class="today">${Math.floor(restNeedTime / 60)}시간 ${
+                    restNeedTime % 60
+                  }분 (${restNeedWorkTimePerDayHour}시간 ${restNeedWorkTimePerDayMin}분)</span>
+                  `
+                  break
+                case 'working_holiday':
+                  text = `
+                    <span class="custom-ui__title-wrap">
+                      <span class="custom-ui__title">휴가사용</span>
+                    </span>
+                    <span class="today">${leaveDays}일
+                  `
+                  break
+              }
+              return text
+            }
+            console.log('restNeedWorkTimePerDay', restNeedWorkTimePerDay)
 
+            // 표출 부.
+            const section = document.querySelector('.c-dHHzzw > *')
+            const wrapper = document.querySelector('.custom-ui-wrap')
             const customUiWrap = createElement('div', {
               attributes: { class: 'custom-ui-wrap' },
             })
+            const customUiItemWrap = createElement('div', {
+              attributes: { class: 'custom-ui' },
+            })
+            // 표출 부 - 근무일
+            const workingDay = createElement('div', {
+              attributes: {
+                class: 'custom-ui__item',
+              },
+              content: createText('working_day'),
+            })
+            // 표출 부 - 근무시간
             const workingTime = createElement('div', {
-              attributes: { class: 'custom-ui__work' },
-              content: `근무시간 : ${totalWorkDoneTime} / 126시간 (80%)`,
+              attributes: {
+                class: 'custom-ui__item',
+              },
+              content: createText('working_time'),
             })
-            const dayTime = createElement('div', {
-              attributes: { class: 'custom-ui__day' },
-              content: `일당 평균 근로시간 : ${averageWorkTime} ()`,
+            // 표출 부 - 잔여 근무시간
+            const workingLeftoverTime = createElement('div', {
+              attributes: {
+                class: 'custom-ui__item',
+              },
+              content: createText('working_leftover'),
             })
-
-            const wrapper = document.querySelector('.custom-ui-wrap')
+            // 표출 부 - 휴가사용
+            const workingHoliday = createElement('div', {
+              attributes: {
+                class: 'custom-ui__item custom-ui__item--holiday',
+              },
+              content: createText('working_holiday'),
+            })
             if (wrapper) {
-              wrapper.innerHTML = todayWorkTime
+              workingDay.innerHTML = createText('working_day')
+              workingTime.innerHTML = createText('working_time')
+              workingLeftoverTime.innerHTML = createText('working_leftover')
+              workingHoliday.innerHTML = createText('working_holiday')
             } else {
               section.insertBefore(customUiWrap, section.firstChild)
-              customUiWrap.appendChild(workingTime)
-              customUiWrap.appendChild(dayTime)
+              customUiWrap.appendChild(customUiItemWrap)
+              customUiItemWrap.appendChild(workingDay)
+              customUiItemWrap.appendChild(workingTime)
+              customUiItemWrap.appendChild(workingLeftoverTime)
+              customUiItemWrap.appendChild(workingHoliday)
             }
           }
         })
