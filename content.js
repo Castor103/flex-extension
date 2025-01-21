@@ -431,37 +431,6 @@ function formatTimeString(timeString) {
   }
 }
 
-function dataParserFromHtml(htmlContent) {
-  const displayNameRegex = /"displayName":\s*"([^"]+)"/
-  const emailRegex = /"email":\s*"([^"]+)"/
-
-  const displayNameMatch = htmlContent.match(displayNameRegex)
-  const emailMatch = htmlContent.match(emailRegex)
-
-  var returndisplayName = ''
-  var returnemail = ''
-
-  if (displayNameMatch) {
-    //console.log('displayName:', displayNameMatch[1]);
-    returndisplayName = displayNameMatch[1]
-  } else {
-    //console.log('displayName을 찾을 수 없습니다.');
-  }
-
-  if (emailMatch) {
-    //console.log('email:', emailMatch[1]);
-    returnemail = emailMatch[1]
-  } else {
-    //console.log('email을 찾을 수 없습니다.');
-  }
-
-  return {
-    displayName: returndisplayName,
-    email: returnemail,
-    offDay: returnOffDay,
-  }
-}
-
 function waitForSectionElement() {
   return new Promise((resolve) => {
     const timeout1 = setTimeout("", 330)
