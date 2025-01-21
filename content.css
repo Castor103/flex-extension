@@ -1,0 +1,40 @@
+.custom-ui-wrap {
+  padding: 20px 28px 0px 40px;
+}
+
+.custom-ui__item {
+  display: flex;
+  align-items: center;
+}
+
+.custom-ui__item::before {
+  content: attr(data-title);
+  padding: 5px;
+  margin-right: 10px;
+
+  font-weight: bold;
+  background-color: #eaf6f6;
+  color: #466e6d;
+
+  border-radius: 5px;
+  border: 1px solid #e8f2f2;
+}
+
+.custom-ui__item .today {
+  font-weight: bold;
+}
+
+.custom-ui__item .total {
+  position: relative;
+}
+
+.custom-ui__item .total::before {
+  position: absolute;
+  width: 1px;
+  height: 10px;
+  transform: translateY(-50%) rotate(45deg);
+  left: 0;
+  top: 50%;
+
+  color: #898989;
+}
