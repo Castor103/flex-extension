@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "Flex 근무 계산 확장 (by NARASPACE)",
+  "version": "0.1.1",
+  "description": "현재까지의 근무시간을 계산합니다.",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "tabs"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "/images/icons8-color-16.png",
+      "32": "/images/icons8-color-32.png",
+      "48": "/images/icons8-color-48.png",
+      "128": "/images/icons8-color-128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "host_permissions": ["<all_urls>"],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": [
+        "content.js"
+      ]
+    }
+  ]
+}
