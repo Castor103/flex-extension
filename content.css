@@ -34,31 +34,6 @@
   border-radius: 10px;
 }
 
-.custom-ui__tooltip {
-  position: absolute;
-  left: 50%;
-  top: calc(-100% - 30px);
-  transform: translateX(-50%);
-  padding: 5px 8px;
-
-  font-size: 12px;
-  line-height: 1.5em;
-  color: #ffffff;
-  background-color: #333333;
-  word-wrap: break-word;
-  white-space: nowrap;
-
-  border-radius: 4px;
-  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
-
-  /* opacity: 1;
-  visibility: visible; */
-  pointer-events: none;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.2s ease, visibility 0.2s ease;
-}
-
 .custom-ui__title-wrap:hover .custom-ui__tooltip {
   opacity: 1;
   visibility: visible;
@@ -94,6 +69,32 @@
 /* item - percent */
 .custom-ui__item .percent {
   margin-left: 5px;
+}
+
+/* tooltip */
+.custom-ui__tooltip {
+  position: absolute;
+  left: 50%;
+  top: calc(-100% - 30px);
+  transform: translateX(-50%);
+  padding: 5px 8px;
+
+  font-size: 12px;
+  line-height: 1.5em;
+  color: #ffffff;
+  background-color: #3e4349;
+  word-wrap: break-word;
+  white-space: nowrap;
+
+  border-radius: 4px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+
+  /* opacity: 1;
+  visibility: visible; */
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
 }
 
 /* 주 */
