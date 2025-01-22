@@ -1,4 +1,4 @@
-(() => {
+;(() => {
   const header = document.querySelector('.c-upfCI')
   if (header === undefined) {
     return
@@ -8,29 +8,30 @@
 
   function fetchDataFunction() {
     waitForSectionElement().then(() => {
-
       //console.log(`rawData: ${document.documentElement.outerHTML}`);
 
       // 진입 확인용 총 근무 시간
       const totalWorkDoneTime = getElementsWithClass('span.c-hotmRC')
-      
+
       if (totalWorkDoneTime === 'N/A') {
         //
         return
       } else {
-
         // workpageViewType : 주기, 월, 주
         const workpageViewType = getElementsInnerTextWithClass('.c-bHdqUR > *')
 
         // 크롤데이터
         let data = undefined
 
-        if (workpageViewType === '월' || workpageViewType === '주기') {
-          data = getData(workpageViewType)
-        } else {
-          // (workpageViewType === '주') 조건 혹은 기타 설정인 경우 이곳.
-          console.log('표기 불가 페이지, 근무 페이지 설정을 주기 혹은 주로 변경 하도록 가이드')
-        }
+        data = getData(workpageViewType)
+        // if (workpageViewType === '월' || workpageViewType === '주기') {
+        //   data = getData(workpageViewType)
+        // } else {
+        //   // (workpageViewType === '주') 조건 혹은 기타 설정인 경우 이곳.
+        //   console.log(
+        //     '표기 불가 페이지, 근무 페이지 설정을 주기 혹은 주로 변경 하도록 가이드',
+        //   )
+        // }
 
         // 플러그인에의한 UI업데이트 부부
         updateAppendUi(workpageViewType, data)
@@ -40,7 +41,6 @@
 })()
 
 function getData(workpageViewType) {
-
   const updateTime = new Date().toISOString()
 
   const totalWorkDoneTime = getElementsWithClass('span.c-hotmRC')
@@ -53,31 +53,30 @@ function getData(workpageViewType) {
 
   if (workpageViewType === '월') {
     const leaveDayArray = getLeaveDayArrayAtMonthType()
-    //console.log('leaveDayArray월:', leaveDayArray) 
+    //console.log('leaveDayArray월:', leaveDayArray)
     leaveDays = leaveDayArray.length
     numberUnuseLeaveDay = countUnusedLeaveDays(leaveDayArray)
-
   } else if (workpageViewType === '주기') {
-    const leaveDayArray = getLeaveDayArray(); 
-    //console.log('leaveDayArray주기:', leaveDayArray) 
+    const leaveDayArray = getLeaveDayArray()
+    //console.log('leaveDayArray주기:', leaveDayArray)
     leaveDays = leaveDayArray.length
     numberUnuseLeaveDay = countUnusedLeaveDays(leaveDayArray)
   }
 
   //console.log('leaveDays:', leaveDays)
-  //console.log('numberUnuseLeaveDay:', numberUnuseLeaveDay) 
+  //console.log('numberUnuseLeaveDay:', numberUnuseLeaveDay)
 
   const workSearchDurationInfo = getSearchDurationInfo()
-  //console.log('workSearchDurationInfo:', workSearchDurationInfo) 
+  //console.log('workSearchDurationInfo:', workSearchDurationInfo)
 
   const isSearchinfoMatch = isCurrentYearAndMonthInRange(workSearchDurationInfo)
-  //console.log('isSearchinfoMatch:', isSearchinfoMatch) 
-  
+  //console.log('isSearchinfoMatch:', isSearchinfoMatch)
+
   // 금일 근로 시간 = 8시간 57분
   let todayWorkTime = getElementsWithClass('div.c-klJrXp')
 
-  if(workStatus === "N/A") {
-    todayWorkTime = "0분"
+  if (workStatus === 'N/A') {
+    todayWorkTime = '0분'
   }
 
   let totalWeekdays = 0
@@ -99,20 +98,18 @@ function getData(workpageViewType) {
       // 평일 요일만 포함 ("월", "화", "수", "목", "금")
       return ['월', '화', '수', '목', '금'].includes(dayOfWeek)
     })
-  
-    const result =
-      calculateMonthlyWeekdaysAndEffectiveDays(weekdayHolidays)
-  
+
+    const result = calculateMonthlyWeekdaysAndEffectiveDays(weekdayHolidays)
+
     totalWeekdays = result.totalWeekdays
     workdoneDayCount = result.effectiveWeekdays
     totalEffectiveWeekdays = result.totalEffectiveWeekdays
-
   } else if (workpageViewType === '주기') {
     // 토, 일, 공휴일 검색용 클래스 필터값
     findObj = getDayAndHoliday('c-hPMBFa', 'c-icjrvK-fmLUio-isHoliday-true')
     childNodesArray = findObj.parantObj
     //console.log(`childNodesArray: [${childNodesArray}]`)
-  
+
     // 평일에 해당하는 공휴일 계산
     weekdayHolidays = findObj.childObj.filter((day) => {
       // 요일 데이터
@@ -120,10 +117,9 @@ function getData(workpageViewType) {
       // 평일 요일만 포함 ("월", "화", "수", "목", "금")
       return ['월', '화', '수', '목', '금'].includes(dayOfWeek)
     })
-  
-    const result =
-      calculateMonthlyWeekdaysAndEffectiveDays(weekdayHolidays)
-  
+
+    const result = calculateMonthlyWeekdaysAndEffectiveDays(weekdayHolidays)
+
     totalWeekdays = result.totalWeekdays
     workdoneDayCount = result.effectiveWeekdays
     totalEffectiveWeekdays = result.totalEffectiveWeekdays
@@ -146,8 +142,7 @@ function getData(workpageViewType) {
   const restEffectiveWeekdays =
     totalEffectiveWeekdays - workdoneDayCount - numberUnuseLeaveDay
 
-  let restNeedTime =
-    totalEffectiveWeekdays * 7 * 60 - totalMinutesWorked
+  let restNeedTime = totalEffectiveWeekdays * 7 * 60 - totalMinutesWorked
 
   if (restNeedTime <= 0) {
     restNeedTime = 0
@@ -159,12 +154,9 @@ function getData(workpageViewType) {
     60
   ).toFixed(2)
 
-  const restNeedWorkTimePerDayFormatting =
-    restNeedWorkTimePerDay.split('.')
-    
-  const restNeedWorkTimePerDayHour = Math.floor(
-    restNeedWorkTimePerDay,
-  )
+  const restNeedWorkTimePerDayFormatting = restNeedWorkTimePerDay.split('.')
+
+  const restNeedWorkTimePerDayHour = Math.floor(restNeedWorkTimePerDay)
   const restNeedWorkTimePerDayMin = Math.round(
     (restNeedWorkTimePerDay - restNeedWorkTimePerDayHour) * 60,
   )
@@ -228,27 +220,27 @@ function countWeekdaysUntilToday() {
 
 function isCurrentYearAndMonthInRange(dateRange) {
   // 문자열을 분리하여 연도와 월을 추출합니다.
-  const rangeParts = dateRange.split(" – ");
-  const startDateParts = rangeParts[0].trim().split(". ");
-  const endDateParts = rangeParts[1].trim().split(". ");
+  const rangeParts = dateRange.split(' – ')
+  const startDateParts = rangeParts[0].trim().split('. ')
+  const endDateParts = rangeParts[1].trim().split('. ')
 
-  const startYear = parseInt(startDateParts[0]);
-  const startMonth = parseInt(startDateParts[1]);
-  const startDay = parseInt(startDateParts[2]);
+  const startYear = parseInt(startDateParts[0])
+  const startMonth = parseInt(startDateParts[1])
+  const startDay = parseInt(startDateParts[2])
 
-  const endMonth = parseInt(endDateParts[0]);
-  const endDay = parseInt(endDateParts[1]);
+  const endMonth = parseInt(endDateParts[0])
+  const endDay = parseInt(endDateParts[1])
 
   // 현재 날짜
-  const currentDate = new Date();
-  const currentYear = currentDate.getFullYear();
-  const currentMonth = currentDate.getMonth() + 1; // getMonth()는 0부터 시작하므로 1을 더함
+  const currentDate = new Date()
+  const currentYear = currentDate.getFullYear()
+  const currentMonth = currentDate.getMonth() + 1 // getMonth()는 0부터 시작하므로 1을 더함
 
   // 현재 연도와 월이 시작 연도와 월, 끝 연도와 월 사이에 있는지 확인
-  if ((currentYear === startYear) && (currentMonth === startMonth)) {
-      return true; // 현재 연도와 월이 범위 내에 있음
+  if (currentYear === startYear && currentMonth === startMonth) {
+    return true // 현재 연도와 월이 범위 내에 있음
   } else {
-      return false; // 현재 연도와 월이 범위 밖에 있음
+    return false // 현재 연도와 월이 범위 밖에 있음
   }
 }
 
@@ -399,7 +391,7 @@ function formatTimeString(timeString) {
 
 function waitForSectionElement() {
   return new Promise((resolve) => {
-    const timeout1 = setTimeout("", 330)
+    const timeout1 = setTimeout('', 330)
     const checkSection = () => {
       const sectionElement = document.querySelector(
         'section[data-scope="page"][data-part="content"]',
@@ -439,22 +431,22 @@ function getLeaveDayArray() {
   const parent = document.querySelectorAll('.c-hzjAHE')
 
   const textArray = []
-  let dayIndex = 0;
+  let dayIndex = 0
 
   parent.forEach((div) => {
-    const buttonDiv = div.querySelector('div[type="button"].c-ePuMfZ-lgczji-color-purple');
+    const buttonDiv = div.querySelector(
+      'div[type="button"].c-ePuMfZ-lgczji-color-purple',
+    )
     if (buttonDiv) {
-      textArray.push(`${dayIndex}휴가`) 
+      textArray.push(`${dayIndex}휴가`)
     }
-    dayIndex = dayIndex + 1;
+    dayIndex = dayIndex + 1
   })
-  
+
   if (parent) {
     if (parent.length === 0) {
-      
       return undefined
     } else {
-      
       return textArray
     }
   } else {
@@ -467,8 +459,8 @@ function getLeaveDayArrayAtMonthType() {
 
   const textArray = []
 
-  const currentMonth = (new Date().getMonth()) + 1
-  
+  const currentMonth = new Date().getMonth() + 1
+
   let day = 0
   let month = 0
 
@@ -476,25 +468,25 @@ function getLeaveDayArrayAtMonthType() {
     const childDayInfo = div.querySelector('header.c-cMmCSn > div.c-gyZloO')
     const dayString = childDayInfo.textContent.trim()
 
-    if(dayString.includes('.')) {
-      month = parseInt(dayString.split('.')[0]);
-      day = parseInt(dayString.split('.')[1]);
+    if (dayString.includes('.')) {
+      month = parseInt(dayString.split('.')[0])
+      day = parseInt(dayString.split('.')[1])
     } else {
-      day = parseInt(dayString);
+      day = parseInt(dayString)
     }
 
-    if(month === currentMonth && day > 0) {
+    if (month === currentMonth && day > 0) {
       const buttonDiv = div.querySelector(
-        '.c-gwijCh > .c-dYCejv > div[type="button"].c-dmgoKw-lgczji-color-purple'
-      );
-      
+        '.c-gwijCh > .c-dYCejv > div[type="button"].c-dmgoKw-lgczji-color-purple',
+      )
+
       if (buttonDiv) {
-        //textArray.push(`${childDayInfo?.textContent.trim()} ${buttonDiv?.textContent.trim()}`) 
-        textArray.push(`${childDayInfo?.textContent.trim()}연월차`) 
+        //textArray.push(`${childDayInfo?.textContent.trim()} ${buttonDiv?.textContent.trim()}`)
+        textArray.push(`${childDayInfo?.textContent.trim()}연월차`)
       }
     }
   })
-  
+
   if (textArray.length > 0) {
     return textArray
   } else {
@@ -517,7 +509,6 @@ function getSearchDurationInfo() {
     return textArray[0]
   }
 }
-
 
 function getElementsInnerTextWithClass(findTargetClassName) {
   const allDivs = document.querySelectorAll(findTargetClassName)
@@ -549,7 +540,6 @@ function countElementsWithClass(findTargetClassName) {
   purpleDivs.forEach((component) => {
     // 각 부모 요소 내부에서 자식 클래스 요소를 찾음
     leaveDayInfo.push(component.textContent.trim())
-
   })
 
   // 필요한 경우 배열 반환
@@ -557,18 +547,18 @@ function countElementsWithClass(findTargetClassName) {
 }
 
 function countUnusedLeaveDays(LeaveArray) {
-  const today = new Date();
-  const currentDay = today.getDate();
+  const today = new Date()
+  const currentDay = today.getDate()
 
   // 사용되지 않은 휴가일 계산
-  const unusedLeaveDays = LeaveArray.filter(leave => {
-      // "숫자휴가" 형식에서 숫자를 추출
-      const leaveDay = parseInt(leave);
-      // 오늘 날짜 이후의 휴가만 필터링
-      return leaveDay > currentDay;
-  });
+  const unusedLeaveDays = LeaveArray.filter((leave) => {
+    // "숫자휴가" 형식에서 숫자를 추출
+    const leaveDay = parseInt(leave)
+    // 오늘 날짜 이후의 휴가만 필터링
+    return leaveDay > currentDay
+  })
 
-  return unusedLeaveDays.length; // 사용되지 않은 휴가의 개수
+  return unusedLeaveDays.length // 사용되지 않은 휴가의 개수
 }
 
 // 특정 클래스 구조에서 데이터를 추출하는 함수
@@ -597,7 +587,6 @@ function getDayAndHoliday(parentClass, childClass) {
   }
 }
 
-
 function getDayAndHolidayAtMonthType() {
   const parent = document.querySelectorAll('section.c-iYqeMd')
 
@@ -609,7 +598,7 @@ function getDayAndHolidayAtMonthType() {
   const today = new Date()
   const currentMonth = today.getMonth() + 1 // 월은 0부터 시작하므로 1을 더함
   const currentYear = today.getFullYear()
-  
+
   let day = 0
   let month = 0
 
@@ -617,51 +606,52 @@ function getDayAndHolidayAtMonthType() {
     const childDayInfo = div.querySelector('header.c-cMmCSn > div.c-gyZloO')
 
     const dayString = childDayInfo.textContent.trim()
-    
-    if(dayString.includes('.')) {
-      month = parseInt(dayString.split('.')[0]);
-      day = parseInt(dayString.split('.')[1]);
-    } else {
-      day = parseInt(dayString);
-    }
-    
-    if(month === currentMonth && day > 0) {
-      weekData = isWeekend(currentYear, month, day)
-      resultsDays.push(`${day}${weekData.day}`) 
 
-      if(weekData.type === "Weekday") {
-        const findDiv = childDayInfo.querySelector('.c-ezanJe-fmLUio-isHoliday-true');
+    if (dayString.includes('.')) {
+      month = parseInt(dayString.split('.')[0])
+      day = parseInt(dayString.split('.')[1])
+    } else {
+      day = parseInt(dayString)
+    }
+
+    if (month === currentMonth && day > 0) {
+      weekData = isWeekend(currentYear, month, day)
+      resultsDays.push(`${day}${weekData.day}`)
+
+      if (weekData.type === 'Weekday') {
+        const findDiv = childDayInfo.querySelector(
+          '.c-ezanJe-fmLUio-isHoliday-true',
+        )
         if (findDiv) {
           resultsHolidays.push(`${day}${weekData.day}`)
-          
-        } 
+        }
       }
     }
   })
-  
+
   return {
-    parantObj: resultsDays, 
-    childObj: resultsHolidays
+    parantObj: resultsDays,
+    childObj: resultsHolidays,
   }
 }
 
 function isWeekend(year, month, day) {
-  const days = ["일", "월", "화", "수", "목", "금", "토"];
+  const days = ['일', '월', '화', '수', '목', '금', '토']
 
   // Date 객체 생성 (월은 0부터 시작하므로 -1 필요)
-  const date = new Date(year, month - 1, day);
+  const date = new Date(year, month - 1, day)
 
   // Date 객체의 getDay() 메서드로 요일 확인
   // 0: 일요일, 6: 토요일
-  const dayOfWeek = date.getDay();
+  const dayOfWeek = date.getDay()
 
-  const type = dayOfWeek === 0 || dayOfWeek === 6 ? "Weekend" : "Weekday";
+  const type = dayOfWeek === 0 || dayOfWeek === 6 ? 'Weekend' : 'Weekday'
 
   // 결과 반환
   return {
     type, // "Weekend" 또는 "Weekday"
     day: days[dayOfWeek], // "일", "월", ..., "토"
-  };
+  }
 }
 
 // element 생성
@@ -679,12 +669,11 @@ function createElement(tag, options = {}) {
 }
 
 function updateAppendUi(workpageViewType, data) {
-
   //console.log('근무 페이지 표기 방식:', workpageViewType)
 
-  if(data === undefined) {
+  if (data === undefined) {
     return
-  } 
+  }
 
   // 데이터 확인용
   //console.log(`당월 총 일 배열: ${data.childNodesArray}`);
@@ -715,7 +704,7 @@ function updateAppendUi(workpageViewType, data) {
   // 당월 잔여 근무 일: 5
   // 당월 잔여 근무 시간: 877 분
   // 당월 잔여 근무 시간 / 일: 2.92 시간
-  
+
   // text 생성
   const monthHours = data.totalEffectiveWeekdays * 7
   const compareTime =
@@ -740,7 +729,9 @@ function updateAppendUi(workpageViewType, data) {
             <span class="custom-ui__title">근무시간</span>
             <span class="custom-ui__tooltip">휴가일을 포함하여 근무시간이 계산됩니다.<br/>(현재 총 근무시간 / 당월 의무 근무시간 (달성률))</span>
           </span>
-          <span class="today">${data.totalWorkDoneTimeHour}시간 ${data.totalWorkDoneTimeMin}분</span>
+          <span class="today">${data.totalWorkDoneTimeHour}시간 ${
+          data.totalWorkDoneTimeMin
+        }분</span>
           <span class="total">${monthHours}시간</span>
           <span class="percent">(${timePercentage.toFixed(2)}%)</span>
         `
@@ -752,8 +743,10 @@ function updateAppendUi(workpageViewType, data) {
             <span class="custom-ui__tooltip">휴가일을 포함하여 잔여 근무시간이 계산됩니다.<br/>잔여 근무시간 (잔여 일당 최소 근무시간)</span>
           </span>
            <span class="today">${Math.floor(data.restNeedTime / 60)}시간 ${
-            data.restNeedTime % 60
-        }분 (${data.restNeedWorkTimePerDayHour}시간 ${data.restNeedWorkTimePerDayMin}분)</span>
+          data.restNeedTime % 60
+        }분 (${data.restNeedWorkTimePerDayHour}시간 ${
+          data.restNeedWorkTimePerDayMin
+        }분)</span>
         `
         break
       case 'working_holiday':
@@ -761,69 +754,122 @@ function updateAppendUi(workpageViewType, data) {
           <span class="custom-ui__title-wrap">
             <span class="custom-ui__title">휴가사용</span>
           </span>
-          <span class="today">${data.leaveDays}일
+          <span class="today">${data.leaveDays}일</span>
         `
         break
     }
     return text
   }
-  
-  // 표출 부.
+
   const section = document.querySelector('.c-dHHzzw > *')
   const wrapper = document.querySelector('.custom-ui-wrap')
+  const ui = document.querySelector('.custom-ui')
+  const customUiItems = document.querySelectorAll('.custom-ui__item')
+  const hasWorkingWeek = document.querySelector('.custom-ui__working_week')
+
+  // element - wrapper
   const customUiWrap = createElement('div', {
     attributes: { class: 'custom-ui-wrap' },
   })
   const customUiItemWrap = createElement('div', {
     attributes: { class: 'custom-ui' },
   })
-  
-  // 표출 부 - 근무일
+  // element - 근무일
   const workingDay = createElement('div', {
     attributes: {
       class: 'custom-ui__item custom-ui__item--working_day',
     },
     content: createText('working_day'),
   })
-  // 표출 부 - 근무시간
+  // element - 근무시간
   const workingTime = createElement('div', {
     attributes: {
       class: 'custom-ui__item custom-ui__item--working_time',
     },
     content: createText('working_time'),
   })
-  // 표출 부 - 잔여 근무시간
+  // element - 잔여시간
   const workingLeftoverTime = createElement('div', {
     attributes: {
       class: 'custom-ui__item custom-ui__item--working_leftover',
     },
     content: createText('working_leftover'),
   })
-  // 표출 부 - 휴가사용
+  // element - 휴가사용
   const workingHoliday = createElement('div', {
     attributes: {
       class: 'custom-ui__item custom-ui__item--holiday',
     },
     content: createText('working_holiday'),
   })
-  if (wrapper) {
-    document.querySelector(
-      '.custom-ui__item--working_day',
-    ).innerHTML = createText('working_day')
-    document.querySelector(
-      '.custom-ui__item--working_time',
-    ).innerHTML = createText('working_time')
-    document.querySelector(
-      '.custom-ui__item--working_leftover',
-    ).innerHTML = createText('working_leftover')
-    document.querySelector('.custom-ui__item--holiday').innerHTML =
-      createText('working_holiday')
-  } else {
-    section.insertBefore(customUiWrap, section.firstChild)
-    customUiWrap.appendChild(customUiItemWrap)
-    customUiItemWrap.appendChild(workingDay)
-    customUiItemWrap.appendChild(workingTime)
-    customUiItemWrap.appendChild(workingLeftoverTime)
-    customUiItemWrap.appendChild(workingHoliday)
+  // element - 주
+  const viewTypeWeek = createElement('div', {
+    attributes: {
+      class: 'custom-ui__working_week',
+    },
+    content: '"주기"와 "월" 보기에서만 사용 가능합니다 🥺',
+  })
+
+  // 초기화 함수: wrapper가 없으면 추가
+  function initializeWrapper() {
+    if (!wrapper) {
+      section.insertBefore(customUiWrap, section.firstChild)
+      customUiWrap.appendChild(customUiItemWrap)
+    }
   }
+
+  // 요소 제거 함수
+  function removeCustomUiItems() {
+    const items = document.querySelectorAll('.custom-ui__item')
+    items.forEach((item) => item.remove())
+  }
+
+  // 메인 로직 함수
+  function handleWorkpageViewType() {
+    initializeWrapper()
+
+    // '주' 처리
+    if (workpageViewType === '주') {
+      // custom-ui__item 있으면 제거
+      if (customUiItems.length > 0) {
+        removeCustomUiItems()
+      }
+      // hasWorkingWeek 없으면 추가
+      if (!hasWorkingWeek && wrapper) {
+        ui.appendChild(viewTypeWeek)
+      }
+      return
+    }
+
+    // '주기', '월' 처리
+    if (workpageViewType === '주기' || workpageViewType === '월') {
+      // hasWorkingWeek 있으면 제거
+      if (hasWorkingWeek) {
+        hasWorkingWeek.remove()
+      }
+
+      if (customUiItems.length === 0) {
+        // custom-ui__item 없으면 추가
+        if (wrapper) {
+          ui.appendChild(workingDay)
+          ui.appendChild(workingTime)
+          ui.appendChild(workingLeftoverTime)
+          ui.appendChild(workingHoliday)
+        }
+      } else {
+        // custom-ui__item 있으면 innerHTML 업데이트
+        document.querySelector('.custom-ui__item--working_day').innerHTML =
+          createText('working_day')
+        document.querySelector('.custom-ui__item--working_time').innerHTML =
+          createText('working_time')
+        document.querySelector('.custom-ui__item--working_leftover').innerHTML =
+          createText('working_leftover')
+        document.querySelector('.custom-ui__item--holiday').innerHTML =
+          createText('working_holiday')
+      }
+    }
+  }
+
+  // 실행
+  handleWorkpageViewType()
 }

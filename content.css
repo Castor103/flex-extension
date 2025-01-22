@@ -95,3 +95,13 @@
 .custom-ui__item .percent {
   margin-left: 5px;
 }
+
+/* 주 */
+.custom-ui__working_week {
+  padding: 20px;
+  min-height: 116px;
+
+  font-weight: 600;
+  background-color: var(--colors-blackAlpha001);
+  border-radius: 10px;
+}
