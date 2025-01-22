@@ -710,55 +710,102 @@ function updateAppendUi(workpageViewType, data) {
   const compareTime =
     data.totalWorkDoneTimeHour * 60 + data.totalWorkDoneTimeMin
   const timePercentage = (compareTime / (monthHours * 60)) * 100
-  function createText(type) {
+  const TEXT_TYPE = {
+    WORKING_DAY: {
+      type: 'working_day',
+      class: 'custom-ui__item--working_day',
+    },
+    WORKING_TIME: {
+      type: 'working_time',
+      class: 'custom-ui__item--working_time',
+    },
+    WORKING_LEFTOVER: {
+      type: 'working_leftover',
+      class: 'custom-ui__item--working_leftover',
+    },
+    WORKING_HOLIDAY: {
+      type: 'working_holiday',
+      class: 'custom-ui__item--holiday',
+    },
+  }
+
+  // 타입에 따른 텍스트 출력
+  function createTextType(type) {
     let text
     switch (type) {
-      case 'working_day':
-        text = `
-          <span class="custom-ui__title-wrap">
-            <span class="custom-ui__title">근무일</span>
-            <span class="custom-ui__tooltip">휴가일을 포함하여 근무일이 계산됩니다.<br/>(현재 근무일 / 당월 의무 근무일)</span>
-          </span>
-          <span class="today">${data.workdoneDayCount}일</span>
-          <span class="total">${data.totalEffectiveWeekdays}일</span>
-        `
+      case TEXT_TYPE.WORKING_DAY.type:
+        text = {
+          title: '근무일',
+          tooltip:
+            '휴가일을 포함하여 근무일이 계산됩니다.<br/>(현재 근무일 / 당월 의무 근무일)',
+          today: `${data.workdoneDayCount}일`,
+          total: `${data.totalEffectiveWeekdays}일`,
+        }
         break
-      case 'working_time':
-        text = `
-          <span class="custom-ui__title-wrap">
-            <span class="custom-ui__title">근무시간</span>
-            <span class="custom-ui__tooltip">휴가일을 포함하여 근무시간이 계산됩니다.<br/>(현재 총 근무시간 / 당월 의무 근무시간 (달성률))</span>
-          </span>
-          <span class="today">${data.totalWorkDoneTimeHour}시간 ${
-          data.totalWorkDoneTimeMin
-        }분</span>
-          <span class="total">${monthHours}시간</span>
-          <span class="percent">(${timePercentage.toFixed(2)}%)</span>
-        `
+      case TEXT_TYPE.WORKING_TIME.type:
+        text = {
+          title: '근무시간',
+          tooltip:
+            '휴가일을 포함하여 근무시간이 계산됩니다.<br/>(현재 총 근무시간 / 당월 의무 근무시간 (달성률))',
+          today: `${data.totalWorkDoneTimeHour}시간 ${data.totalWorkDoneTimeMin}분`,
+          total: `${monthHours}시간`,
+          percent: `(${timePercentage.toFixed(2)}%)`,
+        }
         break
-      case 'working_leftover':
-        text = `
-          <span class="custom-ui__title-wrap">
-            <span class="custom-ui__title">잔여시간</span>
-            <span class="custom-ui__tooltip">휴가일을 포함하여 잔여 근무시간이 계산됩니다.<br/>잔여 근무시간 (잔여 일당 최소 근무시간)</span>
-          </span>
-           <span class="today">${Math.floor(data.restNeedTime / 60)}시간 ${
-          data.restNeedTime % 60
-        }분 (${data.restNeedWorkTimePerDayHour}시간 ${
-          data.restNeedWorkTimePerDayMin
-        }분)</span>
-        `
+      case TEXT_TYPE.WORKING_LEFTOVER.type:
+        text = {
+          title: '잔여시간',
+          tooltip:
+            '휴가일을 포함하여 잔여 근무시간이 계산됩니다.<br/>잔여 근무시간 (잔여 일당 최소 근무시간)',
+          today: `${Math.floor(data.restNeedTime / 60)}시간 ${
+            data.restNeedTime % 60
+          }분 (${data.restNeedWorkTimePerDayHour}시간 ${
+            data.restNeedWorkTimePerDayMin
+          }분)`,
+        }
         break
-      case 'working_holiday':
-        text = `
-          <span class="custom-ui__title-wrap">
-            <span class="custom-ui__title">휴가사용</span>
-          </span>
-          <span class="today">${data.leaveDays}일</span>
-        `
+      case TEXT_TYPE.WORKING_HOLIDAY.type:
+        text = {
+          title: '휴가사용',
+          today: `${data.leaveDays}일`,
+        }
         break
     }
     return text
+  }
+
+  // 타입에 따른 텍스트를 출력할 구조
+  function createTextStructure(type) {
+    const text = createTextType(type)
+
+    return `
+      <span class="custom-ui__title-wrap">
+        <span class="custom-ui__title">${text.title}</span>
+        ${
+          text.tooltip
+            ? `<span class="custom-ui__tooltip">${text.tooltip}</span>`
+            : ''
+        }
+      </span>
+      <span class="today">${text.today}</span>
+      ${text.total ? `<span class="total">${text.total}</span>` : ''}
+      ${text.percent ? `<span class="percent">${text.percent}</span>` : ''}
+    `
+  }
+
+  // 텍스트 업데이트
+  function updateCustomUiContent(className, type) {
+    const element = document.querySelector(`.${className}`)
+    if (element) {
+      const todayElement = element.querySelector('.today')
+      const totalElement = element.querySelector('.total')
+      const percentElement = element.querySelector('.percent')
+      const text = createTextType(type)
+
+      if (todayElement) todayElement.textContent = text.today
+      if (totalElement) totalElement.textContent = text.total
+      if (percentElement) percentElement.textContent = text.percent
+    }
   }
 
   const section = document.querySelector('.c-dHHzzw > *')
@@ -777,30 +824,30 @@ function updateAppendUi(workpageViewType, data) {
   // element - 근무일
   const workingDay = createElement('div', {
     attributes: {
-      class: 'custom-ui__item custom-ui__item--working_day',
+      class: `custom-ui__item ${TEXT_TYPE.WORKING_DAY.class}`,
     },
-    content: createText('working_day'),
+    content: createTextStructure(TEXT_TYPE.WORKING_DAY.type),
   })
   // element - 근무시간
   const workingTime = createElement('div', {
     attributes: {
-      class: 'custom-ui__item custom-ui__item--working_time',
+      class: `custom-ui__item ${TEXT_TYPE.WORKING_TIME.class}`,
     },
-    content: createText('working_time'),
+    content: createTextStructure(TEXT_TYPE.WORKING_TIME.type),
   })
   // element - 잔여시간
   const workingLeftoverTime = createElement('div', {
     attributes: {
-      class: 'custom-ui__item custom-ui__item--working_leftover',
+      class: `custom-ui__item ${TEXT_TYPE.WORKING_LEFTOVER.class}`,
     },
-    content: createText('working_leftover'),
+    content: createTextStructure(TEXT_TYPE.WORKING_LEFTOVER.type),
   })
   // element - 휴가사용
   const workingHoliday = createElement('div', {
     attributes: {
-      class: 'custom-ui__item custom-ui__item--holiday',
+      class: `custom-ui__item ${TEXT_TYPE.WORKING_HOLIDAY.class}`,
     },
-    content: createText('working_holiday'),
+    content: createTextStructure(TEXT_TYPE.WORKING_HOLIDAY.type),
   })
   // element - 주
   const viewTypeWeek = createElement('div', {
@@ -820,8 +867,7 @@ function updateAppendUi(workpageViewType, data) {
 
   // 요소 제거 함수
   function removeCustomUiItems() {
-    const items = document.querySelectorAll('.custom-ui__item')
-    items.forEach((item) => item.remove())
+    customUiItems.forEach((item) => item.remove())
   }
 
   // 메인 로직 함수
@@ -857,15 +903,23 @@ function updateAppendUi(workpageViewType, data) {
           ui.appendChild(workingHoliday)
         }
       } else {
-        // custom-ui__item 있으면 innerHTML 업데이트
-        document.querySelector('.custom-ui__item--working_day').innerHTML =
-          createText('working_day')
-        document.querySelector('.custom-ui__item--working_time').innerHTML =
-          createText('working_time')
-        document.querySelector('.custom-ui__item--working_leftover').innerHTML =
-          createText('working_leftover')
-        document.querySelector('.custom-ui__item--holiday').innerHTML =
-          createText('working_holiday')
+        // custom-ui__item 있으면 텍스트 업데이트
+        updateCustomUiContent(
+          TEXT_TYPE.WORKING_DAY.class,
+          TEXT_TYPE.WORKING_DAY.type,
+        )
+        updateCustomUiContent(
+          TEXT_TYPE.WORKING_TIME.class,
+          TEXT_TYPE.WORKING_TIME.type,
+        )
+        updateCustomUiContent(
+          TEXT_TYPE.WORKING_LEFTOVER.class,
+          TEXT_TYPE.WORKING_LEFTOVER.type,
+        )
+        updateCustomUiContent(
+          TEXT_TYPE.WORKING_HOLIDAY.class,
+          TEXT_TYPE.WORKING_HOLIDAY.type,
+        )
       }
     }
   }
