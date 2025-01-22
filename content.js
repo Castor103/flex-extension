@@ -21,17 +21,7 @@
         const workpageViewType = getElementsInnerTextWithClass('.c-bHdqUR > *')
 
         // 크롤데이터
-        let data = undefined
-
-        data = getData(workpageViewType)
-        // if (workpageViewType === '월' || workpageViewType === '주기') {
-        //   data = getData(workpageViewType)
-        // } else {
-        //   // (workpageViewType === '주') 조건 혹은 기타 설정인 경우 이곳.
-        //   console.log(
-        //     '표기 불가 페이지, 근무 페이지 설정을 주기 혹은 주로 변경 하도록 가이드',
-        //   )
-        // }
+        let data = getData(workpageViewType)
 
         // 플러그인에의한 UI업데이트 부부
         updateAppendUi(workpageViewType, data)
@@ -74,9 +64,17 @@ function getData(workpageViewType) {
 
   // 금일 근로 시간 = 8시간 57분
   let todayWorkTime = getElementsWithClass('div.c-klJrXp')
+  let todayWorkTimeSide = getElementsWithClass('div.c-kIJHMp')
+
+  // console.log('todayWorkTime:', todayWorkTime)
+  // console.log('todayWorkTimeSide:', todayWorkTimeSide)
 
   if (workStatus === 'N/A') {
     todayWorkTime = '0분'
+  }
+
+  if (workStatus === '휴게중') {
+    todayWorkTime = todayWorkTimeSide
   }
 
   let totalWeekdays = 0
