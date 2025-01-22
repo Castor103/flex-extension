@@ -297,13 +297,33 @@ function calculateMonthlyWeekdaysAndEffectiveDays(holidays) {
   }
 }
 
+function parseTime(input) {
+  // 초기 hour와 minute 값
+  let hour = 0;
+  let minute = 0;
+
+  // 정규식을 사용해 시간과 분을 추출
+  const hourMatch = input.match(/(\d+)\s*시간/); // "n시간" 형식
+  const minuteMatch = input.match(/(\d+)\s*분/);  // "n분" 형식
+
+  // 값이 존재하면 정수로 변환
+  if (hourMatch) {
+      hour = parseInt(hourMatch[1], 10);
+  }
+  if (minuteMatch) {
+      minute = parseInt(minuteMatch[1], 10);
+  }
+
+  return { hour, minute };
+}
+
 function calculateAverageDailyWorkTime(
-  dailyWorkTime,
+  todayWorkTime,
   totalWorkDoneTime,
   weekdaysUntilToday,
 ) {
-  if (dailyWorkTime === 'N/A') {
-    dailyWorkTime = '0시간 0분'
+  if (todayWorkTime === 'N/A') {
+    todayWorkTime = '0시간 0분'
   }
 
   if (totalWorkDoneTime === 'N/A') {
@@ -314,24 +334,33 @@ function calculateAverageDailyWorkTime(
     return 0
   } else {
     // 오늘 근무 시간 (시간, 분으로 변환)
-    const dailyWorkParts = dailyWorkTime
+    const todayWorkParts = todayWorkTime
       .split('시간')
       .map((item) => item.trim())
       .filter(Boolean)
-    const dailyHours = parseInt(dailyWorkParts[0])
-    const dailyMinutes = dailyWorkParts[1]
-      ? parseInt(dailyWorkParts[1].replace('분', '').trim())
-      : 0
-    const dailyWorkMinutes = dailyHours * 60 + dailyMinutes
+
+    const todayWorkParse = parseTime(todayWorkTime)
+    const todayWorkHours = todayWorkParse.hour
+    const todayMinutes = todayWorkParse.minute
+
+    const dailyWorkMinutes = todayWorkHours * 60 + todayMinutes
+    //console.log('todayWorkHours:', todayWorkHours)
+    //console.log('todayMinutes:', todayMinutes)
+    //console.log('totalWorkDoneTime:', totalWorkDoneTime)
 
     // 당월 근무 총시간 (시:분 형식)
     const totalWorkParts = totalWorkDoneTime.split(':')
     const totalWorkHours = parseInt(totalWorkParts[0])
     const totalWorkMinutes = parseInt(totalWorkParts[1])
     const totalWorkMinutesTotal = totalWorkHours * 60 + totalWorkMinutes
+    //console.log('totalWorkParts:', totalWorkParts)
+    //console.log('totalWorkHours:', totalWorkHours)
+    //console.log('totalWorkMinutes:', totalWorkMinutes)
+    //console.log('totalWorkMinutesTotal:', totalWorkMinutesTotal)
 
     // 오늘까지의 총 근무 시간 (오늘 근무 시간 + 당월 근무 시간)
     const totalMinutesWorked = dailyWorkMinutes + totalWorkMinutesTotal
+    //console.log('totalMinutesWorked:', totalMinutesWorked)
 
     // 일당 평균 근로시간 계산 (총 근무 시간 ÷ 평일 수)
     const averageDailyWorkMinutes = totalMinutesWorked / weekdaysUntilToday
