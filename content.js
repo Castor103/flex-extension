@@ -137,8 +137,8 @@ function getData(workpageViewType) {
   const totalWorkDoneTimeHour = Math.floor(Number(totalMinutesWorked / 60))
   const totalWorkDoneTimeMin = Number(totalMinutesWorked % 60)
 
-  const restEffectiveWeekdays =
-    totalEffectiveWeekdays - workdoneDayCount - numberUnuseLeaveDay
+  const restEffectiveWeekdays = totalEffectiveWeekdays - workdoneDayCount
+  const restEffectiveWeekdaysWithoutLeaveDay = restEffectiveWeekdays - numberUnuseLeaveDay
 
   let restNeedTime = totalEffectiveWeekdays * 7 * 60 - totalMinutesWorked
 
@@ -148,7 +148,7 @@ function getData(workpageViewType) {
 
   const restNeedWorkTimePerDay = (
     restNeedTime /
-    restEffectiveWeekdays /
+    restEffectiveWeekdaysWithoutLeaveDay /
     60
   ).toFixed(2)
 
@@ -177,6 +177,8 @@ function getData(workpageViewType) {
     totalWorkDoneTime: totalWorkDoneTime,
     totalEffectiveWeekdays: totalEffectiveWeekdays,
     restEffectiveWeekdays: restEffectiveWeekdays,
+    numberUnuseLeaveDay: numberUnuseLeaveDay,
+    restEffectiveWeekdaysWithoutLeaveDay: restEffectiveWeekdaysWithoutLeaveDay,
     restNeedTime: restNeedTime,
     restNeedWorkTimePerDay: restNeedWorkTimePerDay,
     restNeedWorkTimePerDayHour: restNeedWorkTimePerDayHour,
@@ -716,9 +718,10 @@ function updateAppendUi(workpageViewType, data) {
   //console.log(`금일까지의 근로 가능일: ${data.workdoneDayCount} 일`);
   //console.log(`당월 총 근로시간: ${data.totalWorkDoneTime}`);
   //console.log(`당월 총 근로 가능 일 갯수: ${data.totalEffectiveWeekdays}`);
-  //console.log(`당월 잔여 휴가 제외 근무 가능일: ${data.restEffectiveWeekdays}`);
+  //console.log(`당월 잔여 휴가 제외 근무 가능일: ${data.restEffectiveWeekdaysWithoutLeaveDay}`);
   //console.log(`당월 잔여 근무 시간: ${data.restNeedTime} 분`);
   //console.log(`당월 잔여 근무 시간 / 일: ${data.restNeedWorkTimePerDay} 시간`);
+  //console.log(`잔여 근로가능일:${data.restEffectiveWeekdaysWithoutLeaveDay} = (잔여 근로일: ${data.restEffectiveWeekdays}) - (명일~월말간 연월차 수:${data.numberUnuseLeaveDay})`);
 
   // 획득값 출력 예시)
   // 근무 상태: 근무중
@@ -731,6 +734,7 @@ function updateAppendUi(workpageViewType, data) {
   // 당월 잔여 근무 일: 5
   // 당월 잔여 근무 시간: 877 분
   // 당월 잔여 근무 시간 / 일: 2.92 시간
+  // 잔여 근로가능일:2 = (잔여 근로일: 3) - (명일~월말간 연월차 수:1)
 
   // text 생성
   const monthHours = data.totalEffectiveWeekdays * 7
