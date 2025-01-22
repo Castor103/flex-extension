@@ -1,9 +1,17 @@
 chrome.runtime.onInstalled.addListener(() => {
-  // console.log('Flex 근무 계산 확장 (by NARASPACE) Extension Installed!')
-  checkTabInfo()
-
-  setInterval(checkTabInfo, 1 * 1000) // 1s = 1 * 1000 ms
+  console.log('Flex 근무 계산 확장, Installed!')
+  calculateStart()
 })
+
+chrome.runtime.onStartup.addListener(() => {
+  console.log('Flex 근무 계산 확장, Chrome restarted, reinitializing background!')
+  calculateStart()
+});
+
+function calculateStart() {
+  checkTabInfo()
+  setInterval(checkTabInfo, 1 * 1000) // 1s = 1 * 1000 ms
+}
 
 function checkTabInfo() {
   const targetUrl = 'https://flex.team/time-tracking/my-work-record'

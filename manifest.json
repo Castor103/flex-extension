@@ -25,7 +25,9 @@
       "matches": [
         "*://flex.team/*"
       ],
-      "js": ["content.js"],
+      "js": [
+        "content.js"
+      ],
       "css": ["content.css"]
     }
   ]
