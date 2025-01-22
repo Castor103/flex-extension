@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Flex 근무 계산 확장 (by NARASPACE)",
-  "version": "0.1.1",
-  "description": "현재까지의 근무시간을 계산합니다.",
+  "name": "Flex 근무 계산 확장",
+  "version": "0.1.3",
+  "description": "Flex 근무 페이지에서 편의기능 제공",
   "permissions": ["activeTab", "scripting", "tabs"],
   "action": {
     "default_popup": "popup.html",
