@@ -133,12 +133,16 @@ function getData(workpageViewType) {
   //const averageWorkTime = averageResult.averageDailyWorkHours
   const totalMinutesWorked = averageResult.totalMinutesWorked
 
-  const totalWorkDoneTimeFormatting = totalWorkDoneTime.split(':')
+  //const totalWorkDoneTimeFormatting = totalWorkDoneTime.split(':')
   const totalWorkDoneTimeHour = Math.floor(Number(totalMinutesWorked / 60))
   const totalWorkDoneTimeMin = Number(totalMinutesWorked % 60)
 
   const restEffectiveWeekdays = totalEffectiveWeekdays - workdoneDayCount
-  const restEffectiveWeekdaysWithoutLeaveDay = restEffectiveWeekdays - numberUnuseLeaveDay
+  let restEffectiveWeekdaysWithoutLeaveDay = restEffectiveWeekdays - numberUnuseLeaveDay
+
+  if (restEffectiveWeekdaysWithoutLeaveDay < 1) {
+    restEffectiveWeekdaysWithoutLeaveDay = 1
+  }
 
   let restNeedTime = totalEffectiveWeekdays * 7 * 60 - totalMinutesWorked
 
@@ -152,8 +156,7 @@ function getData(workpageViewType) {
     60
   ).toFixed(2)
 
-  const restNeedWorkTimePerDayFormatting = restNeedWorkTimePerDay.split('.')
-
+  //const restNeedWorkTimePerDayFormatting = restNeedWorkTimePerDay.split('.')
   const restNeedWorkTimePerDayHour = Math.floor(restNeedWorkTimePerDay)
   const restNeedWorkTimePerDayMin = Math.round(
     (restNeedWorkTimePerDay - restNeedWorkTimePerDayHour) * 60,
@@ -329,49 +332,50 @@ function calculateAverageDailyWorkTime(
   if (totalWorkDoneTime === 'N/A') {
     totalWorkDoneTime = '0:00'
   }
+  
+  const todayWorkParse = parseTime(todayWorkTime)
+  const todayWorkHours = todayWorkParse.hour
+  const todayMinutes = todayWorkParse.minute
+  const dailyWorkMinutes = todayWorkHours * 60 + todayMinutes
+
+  //console.log('todayWorkHours:', todayWorkHours)
+  //console.log('todayMinutes:', todayMinutes)
+  //console.log('totalWorkDoneTime:', totalWorkDoneTime)
+
+  // 당월 근무 총시간 (시:분 형식)
+  const totalWorkParts = totalWorkDoneTime.split(':')
+  const totalWorkHours = parseInt(totalWorkParts[0])
+  const totalWorkMinutes = parseInt(totalWorkParts[1])
+  const totalWorkMinutesTotal = totalWorkHours * 60 + totalWorkMinutes
+  //console.log('totalWorkParts:', totalWorkParts)
+  //console.log('totalWorkHours:', totalWorkHours)
+  //console.log('totalWorkMinutes:', totalWorkMinutes)
+  //console.log('totalWorkMinutesTotal:', totalWorkMinutesTotal)
+
+  // 오늘까지의 총 근무 시간 (오늘 근무 시간 + 당월 근무 시간)
+  let totalMinutesWorked = dailyWorkMinutes + totalWorkMinutesTotal
+  //console.log('totalMinutesWorked:', totalMinutesWorked)
+
+  let averageDailyWorkHours = 0
 
   if (weekdaysUntilToday === 0) {
-    return 0
+    // 일당 평균 근로시간 계산 (총 근무 시간 ÷ 평일 수)
+    const averageDailyWorkMinutes = totalMinutesWorked
+  
+    // 평균 근로시간을 시간 단위로 변환 (소수점 2자리까지)
+    averageDailyWorkHours = (averageDailyWorkMinutes / 60).toFixed(2)
+
   } else {
-    // 오늘 근무 시간 (시간, 분으로 변환)
-    const todayWorkParts = todayWorkTime
-      .split('시간')
-      .map((item) => item.trim())
-      .filter(Boolean)
-
-    const todayWorkParse = parseTime(todayWorkTime)
-    const todayWorkHours = todayWorkParse.hour
-    const todayMinutes = todayWorkParse.minute
-
-    const dailyWorkMinutes = todayWorkHours * 60 + todayMinutes
-    //console.log('todayWorkHours:', todayWorkHours)
-    //console.log('todayMinutes:', todayMinutes)
-    //console.log('totalWorkDoneTime:', totalWorkDoneTime)
-
-    // 당월 근무 총시간 (시:분 형식)
-    const totalWorkParts = totalWorkDoneTime.split(':')
-    const totalWorkHours = parseInt(totalWorkParts[0])
-    const totalWorkMinutes = parseInt(totalWorkParts[1])
-    const totalWorkMinutesTotal = totalWorkHours * 60 + totalWorkMinutes
-    //console.log('totalWorkParts:', totalWorkParts)
-    //console.log('totalWorkHours:', totalWorkHours)
-    //console.log('totalWorkMinutes:', totalWorkMinutes)
-    //console.log('totalWorkMinutesTotal:', totalWorkMinutesTotal)
-
-    // 오늘까지의 총 근무 시간 (오늘 근무 시간 + 당월 근무 시간)
-    const totalMinutesWorked = dailyWorkMinutes + totalWorkMinutesTotal
-    //console.log('totalMinutesWorked:', totalMinutesWorked)
-
     // 일당 평균 근로시간 계산 (총 근무 시간 ÷ 평일 수)
     const averageDailyWorkMinutes = totalMinutesWorked / weekdaysUntilToday
 
     // 평균 근로시간을 시간 단위로 변환 (소수점 2자리까지)
-    const averageDailyWorkHours = (averageDailyWorkMinutes / 60).toFixed(2)
+    averageDailyWorkHours = (averageDailyWorkMinutes / 60).toFixed(2)
+  }
 
-    return {
-      averageDailyWorkHours,
-      totalMinutesWorked,
-    }
+  return {
+    averageDailyWorkHours,
+    totalMinutesWorked,
   }
 }
 
