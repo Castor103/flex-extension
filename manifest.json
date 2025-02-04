@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Flex 근무 계산 확장",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Flex 근무 페이지에서 편의기능 제공",
   "permissions": ["activeTab", "scripting", "tabs"],
   "action": {
@@ -13,6 +13,13 @@
       "64": "/images/favicon-64.png",
       "128": "/images/favicon-128.png"
     }
+  },
+  "icons": {
+    "16": "/images/favicon-16.png",
+    "32": "/images/favicon-32.png",
+    "48": "/images/favicon-48.png",
+    "64": "/images/favicon-64.png",
+    "128": "/images/favicon-128.png"
   },
   "background": {
     "service_worker": "background.js"
