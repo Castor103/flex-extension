@@ -1,4 +1,4 @@
-;(() => {
+(() => {
   const header = document.querySelector('.c-upfCI')
   if (header === undefined) {
     return
@@ -11,7 +11,7 @@
       //console.log(`rawData: ${document.documentElement.outerHTML}`);
 
       // 진입 확인용 총 근무 시간
-      const totalWorkDoneTime = getElementsWithClass('span.c-hotmRC')
+      const totalWorkDoneTime = getElementsWithClass('span.c-lmXAkT')
 
       if (totalWorkDoneTime === 'N/A') {
         //
@@ -33,7 +33,7 @@
 function getData(workpageViewType) {
   const updateTime = new Date().toISOString()
 
-  const totalWorkDoneTime = getElementsWithClass('span.c-hotmRC')
+  const totalWorkDoneTime = getElementsWithClass('span.c-lmXAkT')
 
   // 현재 근무 상태 = 근무중, 휴게중, ...
   const workStatus = getElementsWithClass('div.c-gzEFDl > *')
@@ -523,7 +523,7 @@ function getLeaveDayArrayAtMonthType() {
   if (textArray.length > 0) {
     return textArray
   } else {
-    return undefined
+    return textArray
   }
 }
 
@@ -702,30 +702,38 @@ function createElement(tag, options = {}) {
 }
 
 function updateAppendUi(workpageViewType, data) {
-  //console.log('근무 페이지 표기 방식:', workpageViewType)
+  const display_enable = false
+
+  if(display_enable)
+  {
+    console.log('근무 페이지 표기 방식:', workpageViewType)
+  }
 
   if (data === undefined) {
     return
   }
 
-  // 데이터 확인용
-  //console.log(`당월 총 일 배열: ${data.childNodesArray}`);
-  //console.log(`당월 주말 포함 공휴일 배열: ${data.childObj}`);
-  //console.log(`평일중 공휴일 배열: ${data.weekdayHolidays}`);
-  //console.log(`오늘까지의 평일 갯수: ${data.totalWeekdays}`);
-
-  // 상시 획득 가능 값
-  //console.log(`근무 상태: ${data.workStatus}`)
-  //console.log(`금일 근로시간: ${data.todayWorkTime}`)
-  //console.log(`당월 신청한 연월차 수: ${data.leaveDays}`);
-  //console.log(`당월 일일 총 개수: ${data.findObj.parantObj.length}`);
-  //console.log(`금일까지의 근로 가능일: ${data.workdoneDayCount} 일`);
-  //console.log(`당월 총 근로시간: ${data.totalWorkDoneTime}`);
-  //console.log(`당월 총 근로 가능 일 갯수: ${data.totalEffectiveWeekdays}`);
-  //console.log(`당월 잔여 휴가 제외 근무 가능일: ${data.restEffectiveWeekdaysWithoutLeaveDay}`);
-  //console.log(`당월 잔여 근무 시간: ${data.restNeedTime} 분`);
-  //console.log(`당월 잔여 근무 시간 / 일: ${data.restNeedWorkTimePerDay} 시간`);
-  //console.log(`잔여 근로가능일:${data.restEffectiveWeekdaysWithoutLeaveDay} = (잔여 근로일: ${data.restEffectiveWeekdays}) - (명일~월말간 연월차 수:${data.numberUnuseLeaveDay})`);
+  if(display_enable)
+  {
+    // 데이터 확인용
+    console.log(`당월 총 일 배열: ${data.childNodesArray}`);
+    console.log(`당월 주말 포함 공휴일 배열: ${data.childObj}`);
+    console.log(`평일중 공휴일 배열: ${data.weekdayHolidays}`);
+    console.log(`오늘까지의 평일 갯수: ${data.totalWeekdays}`);
+  
+    // 상시 획득 가능 값
+    console.log(`근무 상태: ${data.workStatus}`)
+    console.log(`금일 근로시간: ${data.todayWorkTime}`)
+    console.log(`당월 신청한 연월차 수: ${data.leaveDays}`);
+    console.log(`당월 일일 총 개수: ${data.findObj.parantObj.length}`);
+    console.log(`금일까지의 근로 가능일: ${data.workdoneDayCount} 일`);
+    console.log(`당월 총 근로시간: ${data.totalWorkDoneTime}`);
+    console.log(`당월 총 근로 가능 일 갯수: ${data.totalEffectiveWeekdays}`);
+    console.log(`당월 잔여 휴가 제외 근무 가능일: ${data.restEffectiveWeekdaysWithoutLeaveDay}`);
+    console.log(`당월 잔여 근무 시간: ${data.restNeedTime} 분`);
+    console.log(`당월 잔여 근무 시간 / 일: ${data.restNeedWorkTimePerDay} 시간`);
+    console.log(`잔여 근로가능일:${data.restEffectiveWeekdaysWithoutLeaveDay} = (잔여 근로일: ${data.restEffectiveWeekdays}) - (명일~월말간 연월차 수:${data.numberUnuseLeaveDay})`);
+  }
 
   // 획득값 출력 예시)
   // 근무 상태: 근무중
