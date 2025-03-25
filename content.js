@@ -20,17 +20,19 @@
         // workpageViewType : 주기, 월, 주
         const workpageViewType = getElementsInnerTextWithClass('.c-bHdqUR > *')
 
+        const calculate_flex_worktime_mode = true
+
         // 크롤데이터
-        let data = getData(workpageViewType)
+        let data = getData(calculate_flex_worktime_mode, workpageViewType)
 
         // 플러그인에의한 UI업데이트 부부
-        updateAppendUi(workpageViewType, data)
+        updateAppendUi(calculate_flex_worktime_mode, workpageViewType, data)
       }
     })
   }
 })()
 
-function getData(workpageViewType) {
+function getData(calculate_flex_worktime_mode, workpageViewType) {
   const updateTime = new Date().toISOString()
 
   const totalWorkDoneTime = getElementsWithClass('span.c-lmXAkT')
@@ -145,6 +147,14 @@ function getData(workpageViewType) {
   }
 
   let restNeedTime = totalEffectiveWeekdays * 7 * 60 - totalMinutesWorked
+  
+  const calculate_flex_work = (35 * childNodesArray.length / 7) - (7 * weekdayHolidays.length);
+
+  if(calculate_flex_worktime_mode) {
+    restNeedTime = calculate_flex_work * 60 - totalMinutesWorked
+  }
+
+  //console.log(`calculate_flex_work ${calculate_flex_work * 60}, totalMinutesWorked: ${totalMinutesWorked}`)
 
   if (restNeedTime <= 0) {
     restNeedTime = 0
@@ -701,7 +711,7 @@ function createElement(tag, options = {}) {
   return element
 }
 
-function updateAppendUi(workpageViewType, data) {
+function updateAppendUi(calculate_flex_worktime_mode, workpageViewType, data) {
   const display_enable = false
 
   if(display_enable)
@@ -713,27 +723,8 @@ function updateAppendUi(workpageViewType, data) {
     return
   }
 
-  if(display_enable)
-  {
-    // 데이터 확인용
-    console.log(`당월 총 일 배열: ${data.childNodesArray}`);
-    console.log(`당월 주말 포함 공휴일 배열: ${data.childObj}`);
-    console.log(`평일중 공휴일 배열: ${data.weekdayHolidays}`);
-    console.log(`오늘까지의 평일 갯수: ${data.totalWeekdays}`);
-  
-    // 상시 획득 가능 값
-    console.log(`근무 상태: ${data.workStatus}`)
-    console.log(`금일 근로시간: ${data.todayWorkTime}`)
-    console.log(`당월 신청한 연월차 수: ${data.leaveDays}`);
-    console.log(`당월 일일 총 개수: ${data.findObj.parantObj.length}`);
-    console.log(`금일까지의 근로 가능일: ${data.workdoneDayCount} 일`);
-    console.log(`당월 총 근로시간: ${data.totalWorkDoneTime}`);
-    console.log(`당월 총 근로 가능 일 갯수: ${data.totalEffectiveWeekdays}`);
-    console.log(`당월 잔여 휴가 제외 근무 가능일: ${data.restEffectiveWeekdaysWithoutLeaveDay}`);
-    console.log(`당월 잔여 근무 시간: ${data.restNeedTime} 분`);
-    console.log(`당월 잔여 근무 시간 / 일: ${data.restNeedWorkTimePerDay} 시간`);
-    console.log(`잔여 근로가능일:${data.restEffectiveWeekdaysWithoutLeaveDay} = (잔여 근로일: ${data.restEffectiveWeekdays}) - (명일~월말간 연월차 수:${data.numberUnuseLeaveDay})`);
-  }
+  const calculate_flex_work = (35 * data.childNodesArray.length / 7) - (7 * data.weekdayHolidays.length);
+  const calculate_flex_target_time_per_day = calculate_flex_work / data.totalEffectiveWeekdays
 
   // 획득값 출력 예시)
   // 근무 상태: 근무중
@@ -749,10 +740,41 @@ function updateAppendUi(workpageViewType, data) {
   // 잔여 근로가능일:2 = (잔여 근로일: 3) - (명일~월말간 연월차 수:1)
 
   // text 생성
-  const monthHours = data.totalEffectiveWeekdays * 7
-  const compareTime =
-    data.totalWorkDoneTimeHour * 60 + data.totalWorkDoneTimeMin
+  var monthHours = data.totalEffectiveWeekdays * 7
+  if(calculate_flex_worktime_mode) {
+    monthHours = calculate_flex_work
+  }
+
+  const compareTime = data.totalWorkDoneTimeHour * 60 + data.totalWorkDoneTimeMin
   const timePercentage = (compareTime / (monthHours * 60)) * 100
+
+  if(display_enable)
+  {
+    // 데이터 확인용
+    console.log(`당월 총 일 배열: ${data.childNodesArray}`);
+    console.log(`당월 총 일 배열 갯수: ${data.childNodesArray.length}`);
+    console.log(`당월 주말 포함 공휴일 배열: ${data.childObj}`);
+    console.log(`평일중 공휴일 배열: ${data.weekdayHolidays}`);
+    console.log(`평일중 공휴일 배열 갯수: ${data.weekdayHolidays.length}`);
+    console.log(`오늘까지의 평일 갯수: ${data.totalWeekdays}`);
+
+    console.log(`flex 근무시간: ${calculate_flex_work}`);
+    console.log(`flex 근무시간으로 하루당 근무 목표시간: ${calculate_flex_target_time_per_day}`);
+  
+    // 상시 획득 가능 값
+    console.log(`근무 상태: ${data.workStatus}`)
+    console.log(`금일 근로시간: ${data.todayWorkTime}`)
+    console.log(`당월 신청한 연월차 수: ${data.leaveDays}`);
+    console.log(`당월 일일 총 개수: ${data.findObj.parantObj.length}`);
+    console.log(`금일까지의 근로 가능일: ${data.workdoneDayCount} 일`);
+    console.log(`당월 총 근로시간: ${data.totalWorkDoneTime}`);
+    console.log(`당월 총 근로 가능 일 갯수: ${data.totalEffectiveWeekdays}`);
+    console.log(`당월 잔여 휴가 제외 근무 가능일: ${data.restEffectiveWeekdaysWithoutLeaveDay}`);
+    console.log(`당월 잔여 근무 시간: ${data.restNeedTime} 분`);
+    console.log(`당월 잔여 근무 시간 / 일: ${data.restNeedWorkTimePerDay} 시간`);
+    console.log(`잔여 근로가능일:${data.restEffectiveWeekdaysWithoutLeaveDay} = (잔여 근로일: ${data.restEffectiveWeekdays}) - (명일~월말간 연월차 수:${data.numberUnuseLeaveDay})`);
+  }
+
   const TEXT_TYPE = {
     WORKING_DAY: {
       type: 'working_day',
@@ -766,6 +788,10 @@ function updateAppendUi(workpageViewType, data) {
       type: 'working_leftover',
       class: 'custom-ui__item--working_leftover',
     },
+    // WORKING_TARGET_TIME: {
+    //   type: 'working_target_time',
+    //   class: 'custom-ui__item--working_target_time',
+    // },
     WORKING_HOLIDAY: {
       type: 'working_holiday',
       class: 'custom-ui__item--holiday',
@@ -804,9 +830,25 @@ function updateAppendUi(workpageViewType, data) {
             data.restNeedTime % 60
           }분 (${data.restNeedWorkTimePerDayHour}시간 ${
             data.restNeedWorkTimePerDayMin
-          }분)`,
+          }분)
+          
+          `,
         }
+        // 당월일당목표시간:
+        // ${Math.floor(calculate_flex_target_time_per_day / 1)}시간 ${
+        //   Math.floor((calculate_flex_target_time_per_day % 1) * 60)
+        // }분
         break
+      // case TEXT_TYPE.WORKING_TARGET_TIME.type:
+      //   text = {
+      //     title: '금월목표시간',
+      //     tooltip:
+      //       'Flex 당월 근무시간을 기준으로 하루당 근무해야하는 시간입니다.',
+      //     today: `${Math.floor(calculate_flex_target_time_per_day / 1)}시간 ${
+      //       Math.floor((calculate_flex_target_time_per_day % 1) * 60)
+      //     }분`,
+      //   }
+      //   break
       case TEXT_TYPE.WORKING_HOLIDAY.type:
         text = {
           title: '휴가사용',
@@ -885,6 +927,13 @@ function updateAppendUi(workpageViewType, data) {
     },
     content: createTextStructure(TEXT_TYPE.WORKING_LEFTOVER.type),
   })
+  // element - 당월 일당 목표 시간
+  // const workingTargetTime = createElement('div', {
+  //   attributes: {
+  //     class: `custom-ui__item ${TEXT_TYPE.WORKING_TARGET_TIME.class}`,
+  //   },
+  //   content: createTextStructure(TEXT_TYPE.WORKING_TARGET_TIME.type),
+  // })
   // element - 휴가사용
   const workingHoliday = createElement('div', {
     attributes: {
@@ -943,6 +992,7 @@ function updateAppendUi(workpageViewType, data) {
           ui.appendChild(workingDay)
           ui.appendChild(workingTime)
           ui.appendChild(workingLeftoverTime)
+          //ui.appendChild(workingTargetTime)
           ui.appendChild(workingHoliday)
         }
       } else {
@@ -959,6 +1009,10 @@ function updateAppendUi(workpageViewType, data) {
           TEXT_TYPE.WORKING_LEFTOVER.class,
           TEXT_TYPE.WORKING_LEFTOVER.type,
         )
+        // updateCustomUiContent(
+        //   TEXT_TYPE.WORKING_TARGET_TIME.class,
+        //   TEXT_TYPE.WORKING_TARGET_TIME.type,
+        // )
         updateCustomUiContent(
           TEXT_TYPE.WORKING_HOLIDAY.class,
           TEXT_TYPE.WORKING_HOLIDAY.type,
