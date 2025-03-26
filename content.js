@@ -109,8 +109,9 @@ function getData(calculate_flex_worktime_mode, workpageViewType) {
     findObj = getDayAndHoliday('c-hPMBFa', 'c-icjrvK-fmLUio-isHoliday-true')
     childNodesArray = findObj.parantObj
     //console.log(`childNodesArray: [${childNodesArray}]`)
+    ///console.log('findObj:', findObj)
 
-    // 평일에 해당하는 공휴일 계산
+    //평일에 해당하는 공휴일 계산
     weekdayHolidays = findObj.childObj.filter((day) => {
       // 요일 데이터
       const dayOfWeek = day.slice(-1) // 마지막 문자 추출 (예: "수", "토")
@@ -471,26 +472,25 @@ function getElementsWithClass(findTargetClassName) {
 }
 
 function getLeaveDayArray() {
-  const parent = document.querySelectorAll('.c-hzjAHE')
+  
+  const allDayDivs = Array.from(document.querySelectorAll('div.c-hzjAHE'));
+  const vacationDays = [];
 
-  const textArray = []
-  let dayIndex = 0
+  // 첫 번째는 제외
+  const dayDivs = allDayDivs.filter(div => !div.classList.contains('c-bxtDoy'));
 
-  parent.forEach((div) => {
-    const buttonDiv = div.querySelector(
-      'div[type="button"].c-ePuMfZ-lgczji-color-purple',
-    )
-    if (buttonDiv) {
-      textArray.push(`${dayIndex}휴가`)
-    }
-    dayIndex = dayIndex + 1
-  })
+  dayDivs.forEach((dayDiv, index) => {
+      const hasPurple = dayDiv.querySelector('div[type="button"].c-drVVmS-lgczji-color-purple');
+      if (hasPurple) {
+          vacationDays.push(`${index}휴가`); // index + 1 이 날짜 (1일부터 시작)
+      }
+  });
 
-  if (parent) {
-    if (parent.length === 0) {
+  if (allDayDivs) {
+    if (allDayDivs.length === 0) {
       return undefined
     } else {
-      return textArray
+      return vacationDays
     }
   } else {
     return undefined
@@ -788,10 +788,6 @@ function updateAppendUi(calculate_flex_worktime_mode, workpageViewType, data) {
       type: 'working_leftover',
       class: 'custom-ui__item--working_leftover',
     },
-    // WORKING_TARGET_TIME: {
-    //   type: 'working_target_time',
-    //   class: 'custom-ui__item--working_target_time',
-    // },
     WORKING_HOLIDAY: {
       type: 'working_holiday',
       class: 'custom-ui__item--holiday',
@@ -834,21 +830,7 @@ function updateAppendUi(calculate_flex_worktime_mode, workpageViewType, data) {
           
           `,
         }
-        // 당월일당목표시간:
-        // ${Math.floor(calculate_flex_target_time_per_day / 1)}시간 ${
-        //   Math.floor((calculate_flex_target_time_per_day % 1) * 60)
-        // }분
         break
-      // case TEXT_TYPE.WORKING_TARGET_TIME.type:
-      //   text = {
-      //     title: '금월목표시간',
-      //     tooltip:
-      //       'Flex 당월 근무시간을 기준으로 하루당 근무해야하는 시간입니다.',
-      //     today: `${Math.floor(calculate_flex_target_time_per_day / 1)}시간 ${
-      //       Math.floor((calculate_flex_target_time_per_day % 1) * 60)
-      //     }분`,
-      //   }
-      //   break
       case TEXT_TYPE.WORKING_HOLIDAY.type:
         text = {
           title: '휴가사용',
@@ -927,13 +909,6 @@ function updateAppendUi(calculate_flex_worktime_mode, workpageViewType, data) {
     },
     content: createTextStructure(TEXT_TYPE.WORKING_LEFTOVER.type),
   })
-  // element - 당월 일당 목표 시간
-  // const workingTargetTime = createElement('div', {
-  //   attributes: {
-  //     class: `custom-ui__item ${TEXT_TYPE.WORKING_TARGET_TIME.class}`,
-  //   },
-  //   content: createTextStructure(TEXT_TYPE.WORKING_TARGET_TIME.type),
-  // })
   // element - 휴가사용
   const workingHoliday = createElement('div', {
     attributes: {
@@ -992,7 +967,6 @@ function updateAppendUi(calculate_flex_worktime_mode, workpageViewType, data) {
           ui.appendChild(workingDay)
           ui.appendChild(workingTime)
           ui.appendChild(workingLeftoverTime)
-          //ui.appendChild(workingTargetTime)
           ui.appendChild(workingHoliday)
         }
       } else {
@@ -1009,10 +983,6 @@ function updateAppendUi(calculate_flex_worktime_mode, workpageViewType, data) {
           TEXT_TYPE.WORKING_LEFTOVER.class,
           TEXT_TYPE.WORKING_LEFTOVER.type,
         )
-        // updateCustomUiContent(
-        //   TEXT_TYPE.WORKING_TARGET_TIME.class,
-        //   TEXT_TYPE.WORKING_TARGET_TIME.type,
-        // )
         updateCustomUiContent(
           TEXT_TYPE.WORKING_HOLIDAY.class,
           TEXT_TYPE.WORKING_HOLIDAY.type,
