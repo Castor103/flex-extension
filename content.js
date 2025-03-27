@@ -538,7 +538,7 @@ function getLeaveDayArrayAtMonthType() {
 }
 
 function getSearchDurationInfo() {
-  const allDivs = document.querySelectorAll('button.c-bIRrzL-ifzdrhW-css')
+  const allDivs = document.querySelectorAll('button.c-hTuUst')
 
   const textArray = []
 
@@ -712,7 +712,7 @@ function createElement(tag, options = {}) {
 }
 
 function updateAppendUi(calculate_flex_worktime_mode, workpageViewType, data) {
-  const display_enable = false
+  const display_enable = true
 
   if(display_enable)
   {
