@@ -1,5 +1,47 @@
+
+;(function initGlobalConfig() {
+  if (!window.myCropPlugin) {
+    window.myCropPlugin = {
+      class_param_check_load: '.c-upfCI',
+      class_param_total_workdone_time: 'span.c-lmXAkT',
+      class_param_workpage_view_type: '.c-bHdqUR > *',    // workpageViewType : 주기, 월, 주
+      
+      class_param_work_status: 'div.c-gzEFDl > *',        // 현재 근무 상태: 근무중, 휴게중, ...
+      class_param_work_time: 'div.c-klJrXp',
+      class_param_work_time_side: 'div.c-kIJHMp',
+      
+      // 토, 일, 공휴일 검색용 클래스 필터값
+      //class_param_get_day_and_holiday_parent: 'c-lldrJN',
+      class_param_get_day_and_holiday_parent: 'c-bElvsc',
+      class_param_get_day_and_holiday_child: 'c-bElvsc-fmLUio-colorType-holiday',
+      
+      class_param_wait_for_section_element: 'section[data-scope="page"][data-part="content"]',
+      class_param_all_day_divs: 'div.c-hzjAHE',
+      class_param_day_divs_except_head_row: 'c-bxtDoy',
+      class_param_vacation_button: 'div[type="button"].c-drVVmS-lgczji-color-purple',
+
+      // 주기에서 일별 div 바로 상위 section.
+      //class_param_get_leave_day_array_at_month_parent: 'section.c-eqXmhd',
+      class_param_get_leave_day_array_at_month_parent: 'section.c-pwDdi div.c-diSwZh > div.c-hygrTj',
+
+      //class_param_get_leave_day_array_at_month_child: 'header.c-eRtORt',
+      class_param_get_leave_day_array_at_month_child: 'header.c-eRtORt:not(.c-eRtORt-jjNddC-isWithinIntervalOfInterest-false)',
+      class_param_get_leave_day_array_at_month_child_header: 'header.c-eRtORt',
+      class_param_get_leave_day_array_at_month_child_include: 'c-eRtORt-jjNddC-isWithinIntervalOfInterest-false',
+
+      class_param_get_leave_day_array_at_month_leave: '.c-gwijCh > .c-dYCejv > div[type="button"].c-dmgoKw-lgczji-color-purple',
+      class_param_get_duration: 'button.c-hTuUst',
+      class_param_count_element_button: 'div[type="button"]',
+      class_param_get_day_and_holiday_at_month_weekday: '.c-ezanJe-fmLUio-isHoliday-true',
+      
+      // 상태, 설정 등 전역으로 필요한 것들
+    }
+  }
+})();
+
 (() => {
-  const header = document.querySelector('.c-upfCI')
+
+  const header = document.querySelector(window.myCropPlugin.class_param_check_load)
   if (header === undefined) {
     return
   } else {
@@ -11,14 +53,14 @@
       //console.log(`rawData: ${document.documentElement.outerHTML}`);
 
       // 진입 확인용 총 근무 시간
-      const totalWorkDoneTime = getElementsWithClass('span.c-lmXAkT')
+      const totalWorkDoneTime = getElementsWithClass(window.myCropPlugin.class_param_total_workdone_time)
 
       if (totalWorkDoneTime === 'N/A') {
         //
         return
       } else {
         // workpageViewType : 주기, 월, 주
-        const workpageViewType = getElementsInnerTextWithClass('.c-bHdqUR > *')
+        const workpageViewType = getElementsInnerTextWithClass(window.myCropPlugin.class_param_workpage_view_type)
 
         const calculate_flex_worktime_mode = true
 
@@ -30,21 +72,35 @@
       }
     })
   }
-})()
+})();
+
+function getYearMonthFromDuration(input_text) {
+  const match = input_text.match(/(\d{4})\.\s*(\d{1,2})\.\s*\d{1,2}/);
+
+  if (!match) return { year: 0, month: 0 };
+
+  const year = parseInt(match[1], 10);
+  const month = parseInt(match[2], 10);
+
+  return { year, month };
+}
 
 function getData(calculate_flex_worktime_mode, workpageViewType) {
   const updateTime = new Date().toISOString()
 
-  const totalWorkDoneTime = getElementsWithClass('span.c-lmXAkT')
+  const totalWorkDoneTime = getElementsWithClass(window.myCropPlugin.class_param_total_workdone_time)
 
   // 현재 근무 상태 = 근무중, 휴게중, ...
-  const workStatus = getElementsWithClass('div.c-gzEFDl > *')
+  const workStatus = getElementsWithClass(window.myCropPlugin.class_param_work_status)
 
   let leaveDays = 0
   let numberUnuseLeaveDay = 0
 
+  const workSearchDurationInfo = getSearchDurationInfo()
+  const durationInfo = getYearMonthFromDuration(workSearchDurationInfo)
+
   if (workpageViewType === '월') {
-    const leaveDayArray = getLeaveDayArrayAtMonthType()
+    const leaveDayArray = getLeaveDayArrayAtMonthType(durationInfo.month)
     //console.log('leaveDayArray월:', leaveDayArray)
     leaveDays = leaveDayArray.length
     numberUnuseLeaveDay = countUnusedLeaveDays(leaveDayArray)
@@ -57,16 +113,14 @@ function getData(calculate_flex_worktime_mode, workpageViewType) {
 
   //console.log('leaveDays:', leaveDays)
   //console.log('numberUnuseLeaveDay:', numberUnuseLeaveDay)
-
-  const workSearchDurationInfo = getSearchDurationInfo()
   //console.log('workSearchDurationInfo:', workSearchDurationInfo)
 
   const isSearchinfoMatch = isCurrentYearAndMonthInRange(workSearchDurationInfo)
   //console.log('isSearchinfoMatch:', isSearchinfoMatch)
 
   // 금일 근로 시간 = 8시간 57분
-  let todayWorkTime = getElementsWithClass('div.c-klJrXp')
-  let todayWorkTimeSide = getElementsWithClass('div.c-kIJHMp')
+  let todayWorkTime = getElementsWithClass(window.myCropPlugin.class_param_work_time)
+  let todayWorkTimeSide = getElementsWithClass(window.myCropPlugin.class_param_work_time_side)
 
   // console.log('todayWorkTime:', todayWorkTime)
   // console.log('todayWorkTimeSide:', todayWorkTimeSide)
@@ -87,7 +141,7 @@ function getData(calculate_flex_worktime_mode, workpageViewType) {
   let findObj = []
 
   if (workpageViewType === '월') {
-    findObj = getDayAndHolidayAtMonthType()
+    findObj = getDayAndHolidayAtMonthType(durationInfo.month)
     childNodesArray = findObj.parantObj
     //console.log(`childNodesArray: [${childNodesArray}]`)
 
@@ -106,7 +160,7 @@ function getData(calculate_flex_worktime_mode, workpageViewType) {
     totalEffectiveWeekdays = result.totalEffectiveWeekdays
   } else if (workpageViewType === '주기') {
     // 토, 일, 공휴일 검색용 클래스 필터값
-    findObj = getDayAndHoliday('c-hPMBFa', 'c-icjrvK-fmLUio-isHoliday-true')
+    findObj = getDayAndHoliday(window.myCropPlugin.class_param_get_day_and_holiday_parent, window.myCropPlugin.class_param_get_day_and_holiday_child)
     childNodesArray = findObj.parantObj
     //console.log(`childNodesArray: [${childNodesArray}]`)
     ///console.log('findObj:', findObj)
@@ -437,9 +491,7 @@ function waitForSectionElement() {
   return new Promise((resolve) => {
     const timeout1 = setTimeout('', 330)
     const checkSection = () => {
-      const sectionElement = document.querySelector(
-        'section[data-scope="page"][data-part="content"]',
-      )
+      const sectionElement = document.querySelector('section[data-scope="page"][data-part="content"]',)
       if (sectionElement) {
         clearTimeout(timeout1) // 타임아웃 해제
         resolve(true) // 조건이 충족되면 완료
@@ -473,14 +525,14 @@ function getElementsWithClass(findTargetClassName) {
 
 function getLeaveDayArray() {
   
-  const allDayDivs = Array.from(document.querySelectorAll('div.c-hzjAHE'));
+  const allDayDivs = Array.from(document.querySelectorAll(window.myCropPlugin.class_param_all_day_divs));
   const vacationDays = [];
 
   // 첫 번째는 제외
-  const dayDivs = allDayDivs.filter(div => !div.classList.contains('c-bxtDoy'));
+  const dayDivs = allDayDivs.filter(div => !div.classList.contains(window.myCropPlugin.class_param_day_divs_except_head_row));
 
   dayDivs.forEach((dayDiv, index) => {
-      const hasPurple = dayDiv.querySelector('div[type="button"].c-drVVmS-lgczji-color-purple');
+      const hasPurple = dayDiv.querySelector(window.myCropPlugin.class_param_vacation_button);
       if (hasPurple) {
           vacationDays.push(`${index}휴가`); // index + 1 이 날짜 (1일부터 시작)
       }
@@ -497,36 +549,35 @@ function getLeaveDayArray() {
   }
 }
 
-function getLeaveDayArrayAtMonthType() {
-  const parent = document.querySelectorAll('section.c-iYqeMd')
+function getLeaveDayArrayAtMonthType(month) {
+  const parent = document.querySelectorAll(window.myCropPlugin.class_param_get_leave_day_array_at_month_parent)
 
   const textArray = []
 
   const currentMonth = new Date().getMonth() + 1
 
   let day = 0
-  let month = 0
+
+  //console.log('parent', parent)
 
   parent.forEach((div) => {
-    const childDayInfo = div.querySelector('header.c-cMmCSn > div.c-gyZloO')
-    const dayString = childDayInfo.textContent.trim()
 
-    if (dayString.includes('.')) {
-      month = parseInt(dayString.split('.')[0])
-      day = parseInt(dayString.split('.')[1])
-    } else {
+    const header = div.querySelector(window.myCropPlugin.class_param_get_leave_day_array_at_month_child_header);
+    if (header && !header.className.includes(window.myCropPlugin.class_param_get_leave_day_array_at_month_child_include)) {
+      const dayString = header.querySelector('.c-grczgB')?.innerText.trim();
+      //console.log('유효한 날짜:', dayString);
+
       day = parseInt(dayString)
-    }
-
-    if (month === currentMonth && day > 0) {
-      const buttonDiv = div.querySelector(
-        '.c-gwijCh > .c-dYCejv > div[type="button"].c-dmgoKw-lgczji-color-purple',
-      )
-
-      if (buttonDiv) {
-        //textArray.push(`${childDayInfo?.textContent.trim()} ${buttonDiv?.textContent.trim()}`)
-        textArray.push(`${childDayInfo?.textContent.trim()}연월차`)
+  
+      if (month === currentMonth && day > 0) {
+        const buttonDiv = div.querySelector(window.myCropPlugin.class_param_get_leave_day_array_at_month_leave,)
+  
+        if (buttonDiv) {
+          textArray.push(`${dayString}연월차`)
+        }
       }
+    } else {
+      return;
     }
   })
 
@@ -538,7 +589,7 @@ function getLeaveDayArrayAtMonthType() {
 }
 
 function getSearchDurationInfo() {
-  const allDivs = document.querySelectorAll('button.c-hTuUst')
+  const allDivs = document.querySelectorAll(window.myCropPlugin.class_param_get_duration)
 
   const textArray = []
 
@@ -571,7 +622,7 @@ function getElementsInnerTextWithClass(findTargetClassName) {
 
 function countElementsWithClass(findTargetClassName) {
   // 모든 div 태그를 가져옴
-  const allDivs = document.querySelectorAll('div[type="button"]')
+  const allDivs = document.querySelectorAll(window.myCropPlugin.class_param_count_element_button)
 
   const leaveDayInfo = []
 
@@ -613,6 +664,8 @@ function getDayAndHoliday(parentClass, childClass) {
 
   parentElements.forEach((parent) => {
     // 각 부모 요소 내부에서 자식 클래스 요소를 찾음
+    //const subElements = parent.querySelectorAll(`.c-bElvsc`)
+
     resultsDays.push(parent.textContent.trim())
 
     const child = parent.querySelector(`.${childClass}`)
@@ -630,8 +683,8 @@ function getDayAndHoliday(parentClass, childClass) {
   }
 }
 
-function getDayAndHolidayAtMonthType() {
-  const parent = document.querySelectorAll('section.c-iYqeMd')
+function getDayAndHolidayAtMonthType(month) {
+  const parent = document.querySelectorAll(window.myCropPlugin.class_param_get_leave_day_array_at_month_parent)
 
   const textArray = []
 
@@ -643,32 +696,29 @@ function getDayAndHolidayAtMonthType() {
   const currentYear = today.getFullYear()
 
   let day = 0
-  let month = 0
 
   parent.forEach((div) => {
-    const childDayInfo = div.querySelector('header.c-cMmCSn > div.c-gyZloO')
 
-    const dayString = childDayInfo.textContent.trim()
+    const header = div.querySelector(window.myCropPlugin.class_param_get_leave_day_array_at_month_child_header);
+    if (header && !header.className.includes(window.myCropPlugin.class_param_get_leave_day_array_at_month_child_include)) {
+      const dayString = header.querySelector('.c-grczgB')?.innerText.trim();
+      //console.log('유효한 날짜:', dayString);
 
-    if (dayString.includes('.')) {
-      month = parseInt(dayString.split('.')[0])
-      day = parseInt(dayString.split('.')[1])
-    } else {
       day = parseInt(dayString)
-    }
 
-    if (month === currentMonth && day > 0) {
-      weekData = isWeekend(currentYear, month, day)
-      resultsDays.push(`${day}${weekData.day}`)
+      if (month === currentMonth && day > 0) {
+        weekData = isWeekend(currentYear, month, day)
+        resultsDays.push(`${day}${weekData.day}`)
 
-      if (weekData.type === 'Weekday') {
-        const findDiv = childDayInfo.querySelector(
-          '.c-ezanJe-fmLUio-isHoliday-true',
-        )
-        if (findDiv) {
-          resultsHolidays.push(`${day}${weekData.day}`)
+        if (weekData.type === 'Weekday') {
+          const findDiv = header.querySelector(window.myCropPlugin.class_param_get_day_and_holiday_at_month_weekday,)
+          if (findDiv) {
+            resultsHolidays.push(`${day}${weekData.day}`)
+          }
         }
       }
+    } else {
+      return;
     }
   })
 
@@ -712,7 +762,7 @@ function createElement(tag, options = {}) {
 }
 
 function updateAppendUi(calculate_flex_worktime_mode, workpageViewType, data) {
-  const display_enable = true
+  const display_enable = false
 
   if(display_enable)
   {
