@@ -10,7 +10,7 @@ chrome.runtime.onStartup.addListener(() => {
 
 function calculateStart() {
   checkTabInfo()
-  setInterval(checkTabInfo, 5 * 1000) // 1s = 1 * 1000 ms
+  setInterval(checkTabInfo, 2 * 1000) // 1s = 1 * 1000 ms
 }
 
 function checkTabInfo() {
