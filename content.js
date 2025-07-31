@@ -834,7 +834,7 @@ function createElement(tag, options = {}) {
 }
 
 function updateAppendUi(calculate_flex_worktime_mode, workpageViewType, data) {
-  const display_enable = false
+  const display_enable = true
 
   if(display_enable)
   {
@@ -997,7 +997,7 @@ function updateAppendUi(calculate_flex_worktime_mode, workpageViewType, data) {
     }
   }
 
-  const section = document.querySelector('.fx_b6b0f3e6_izclpo1 > *')
+  const section = document.querySelector('.fx_c76f37be_izclpo1 > *')
 
   const wrapper = document.querySelector('.custom-ui-wrap')
   const ui = document.querySelector('.custom-ui')
