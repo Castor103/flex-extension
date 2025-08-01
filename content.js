@@ -4,6 +4,7 @@
     window.myCropPlugin = {
       class_param_check_load: '.c-upfCI',
       class_param_total_workdone_time: 'span.c-lmXAkT',
+      class_param_month_need_worktime_left_time: 'div.c-bAbSmS',
       class_param_workpage_view_type: '.c-bHdqUR > *',    // workpageViewType : 주기, 월, 주
       
       class_param_work_status: 'div.c-gzEFDl > *',        // 현재 근무 상태: 근무중, 휴게중, ...
@@ -98,6 +99,10 @@ function getData(calculate_flex_worktime_mode, workpageViewType) {
   const updateTime = new Date().toISOString()
 
   const totalWorkDoneTime = getElementsWithClass(window.myCropPlugin.class_param_total_workdone_time)
+  const monthWorkLeftTime = getElementsWithClass(window.myCropPlugin.class_param_month_need_worktime_left_time)
+  
+  //console.log(`totalWorkDoneTime: ${totalWorkDoneTime}`);
+  //console.log(`monthWorkLeftTime: ${monthWorkLeftTime}`);
 
   // 현재 근무 상태 = 근무중, 휴게중, ...
   const workStatus = getElementsWithClass(window.myCropPlugin.class_param_work_status)
@@ -208,14 +213,12 @@ function getData(calculate_flex_worktime_mode, workpageViewType) {
     restEffectiveWeekdaysWithoutLeaveDay = 1
   }
 
-  let restNeedTime = totalEffectiveWeekdays * 7 * 60 - totalMinutesWorked
+  //const calculate_flex_work = (35 * childNodesArray.length / 7) - (7 * weekdayHolidays.length);
+  const calculate_flex_work = calculateMonthWorkTimeStandard(totalWorkDoneTime, monthWorkLeftTime)
+
+  //let restNeedTime = totalEffectiveWeekdays * 7 * 60 - totalMinutesWorked
+  let restNeedTime = calculate_flex_work * 60 - totalMinutesWorked
   
-  const calculate_flex_work = (35 * childNodesArray.length / 7) - (7 * weekdayHolidays.length);
-
-  if(calculate_flex_worktime_mode) {
-    restNeedTime = calculate_flex_work * 60 - totalMinutesWorked
-  }
-
   //console.log(`calculate_flex_work ${calculate_flex_work * 60}, totalMinutesWorked: ${totalMinutesWorked}`)
 
   if (restNeedTime <= 0) {
@@ -250,6 +253,7 @@ function getData(calculate_flex_worktime_mode, workpageViewType) {
     leaveDays: leaveDays,
     workdoneDayCount: workdoneDayCount,
     totalWorkDoneTime: totalWorkDoneTime,
+    monthWorkLeftTime: monthWorkLeftTime,
     totalEffectiveWeekdays: totalEffectiveWeekdays,
     restEffectiveWeekdays: restEffectiveWeekdays,
     numberUnuseLeaveDay: numberUnuseLeaveDay,
@@ -834,7 +838,7 @@ function createElement(tag, options = {}) {
 }
 
 function updateAppendUi(calculate_flex_worktime_mode, workpageViewType, data) {
-  const display_enable = true
+  const display_enable = false
 
   if(display_enable)
   {
@@ -845,7 +849,9 @@ function updateAppendUi(calculate_flex_worktime_mode, workpageViewType, data) {
     return
   }
 
-  const calculate_flex_work = (35 * data.childNodesArray.length / 7) - (7 * data.weekdayHolidays.length);
+  //const calculate_flex_work = (35 * data.childNodesArray.length / 7) - (7 * data.weekdayHolidays.length);
+  const calculate_flex_work = calculateMonthWorkTimeStandard(data.totalWorkDoneTime, data.monthWorkLeftTime)
+
   const calculate_flex_target_time_per_day = calculate_flex_work / data.totalEffectiveWeekdays
 
   // 획득값 출력 예시)
@@ -1116,4 +1122,35 @@ function updateAppendUi(calculate_flex_worktime_mode, workpageViewType, data) {
 
   // 실행
   handleWorkpageViewType()
+}
+
+function calculateMonthWorkTimeStandard(totalWorkDoneTime, monthWorkLeftTime) {
+    function toMinutes(timeStr) {
+        const match = timeStr.match(/^([+-]?)(\d+):(\d+)$/);
+        if (!match) throw new Error(`Invalid time format: ${timeStr}`);
+
+        const sign = match[1] === '-' ? -1 : 1;
+        const hours = parseInt(match[2], 10);
+        const minutes = parseInt(match[3], 10);
+
+        return sign * (hours * 60 + minutes);
+    }
+
+    const totalDone = toMinutes(totalWorkDoneTime);
+    const monthLeft = toMinutes(monthWorkLeftTime);
+
+    // 시간 단위 결과 (소수점 버림)
+    return Math.trunc((totalDone - monthLeft) / 60);
+}
+
+function getMinutesIfNegative(monthWorkLeftTime) {
+    const match = monthWorkLeftTime.match(/^([+-]?)(\d+):(\d+)$/);
+    if (!match) throw new Error(`Invalid time format: ${monthWorkLeftTime}`);
+
+    const sign = match[1] === '-' ? -1 : 1;
+    const hours = parseInt(match[2], 10);
+    const minutes = parseInt(match[3], 10);
+    const totalMinutes = hours * 60 + minutes;
+
+    return sign === -1 ? totalMinutes : 0;
 }
