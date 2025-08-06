@@ -1003,7 +1003,8 @@ function updateAppendUi(calculate_flex_worktime_mode, workpageViewType, data) {
     }
   }
 
-  const section = document.querySelector('.fx_c76f37be_izclpo1 > *')
+  //const section = document.querySelector('.fx_b722dd09_izclpo1 > *')
+  const section = document.querySelector('main[data-scope="page"][data-part="main"] > *');
 
   const wrapper = document.querySelector('.custom-ui-wrap')
   const ui = document.querySelector('.custom-ui')
