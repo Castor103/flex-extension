@@ -19,7 +19,7 @@
       
       class_param_wait_for_section_element: 'section[data-scope="page"][data-part="content"]',
       //class_param_all_day_divs: 'div.c-hzjAHE',
-      class_param_all_day_divs: 'section.c-krCgSO > div.c-lldrJN div.c-gNZGXI div.c-dNTXeN',
+      class_param_all_day_divs: 'section.c-krCgSO > div.c-lldrJN div.c-gNZGXI div.c-fJRAUt',
       //class_param_all_day_divs: 'section.c-krCgSO > div.c-lldrJN > div.c-gNZGXI',
       class_param_day_divs_except_head_row: 'c-bxtDoy',
       //class_param_vacation_button: 'div[type="button"].c-drVVmS-lgczji-color-purple',
@@ -60,7 +60,7 @@
 
   function fetchDataFunction() {
     waitForSectionElement().then(() => {
-      //console.log(`rawData: ${document.documentElement.outerHTML}`);
+      console.log(`rawData: ${document.documentElement.outerHTML}`);
 
       // 진입 확인용 총 근무 시간
       const totalWorkDoneTime = getElementsWithClass(window.myCropPlugin.class_param_total_workdone_time)
