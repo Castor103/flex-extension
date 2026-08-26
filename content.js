@@ -24,7 +24,8 @@
       class_param_day_divs_except_head_row: 'c-bxtDoy',
       //class_param_vacation_button: 'div[type="button"].c-drVVmS-lgczji-color-purple',
       //class_param_vacation_button: 'div[type="button"].c-drVVmS-lgczji-color-purple',
-      class_param_vacation_button: 'div[type="button"].c-ciGsq-lgczji-color-purple',
+      //class_param_vacation_button: 'div[type="button"].c-ciGsq-lgczji-color-purple',
+      class_param_vacation_button: 'div[type="button"].c-iyXem-bstzIN-color-purple',
       
       
       
@@ -38,7 +39,8 @@
       class_param_get_leave_day_array_at_month_child_header: 'header.c-eRtORt',
       class_param_get_leave_day_array_at_month_child_include: 'c-eRtORt-jjNddC-isWithinIntervalOfInterest-false',
 
-      class_param_get_leave_day_array_at_month_leave: '.c-czhgvJ > .c-dYCejv > div[type="button"].c-iUgzqv-lgczji-color-purple',
+      //class_param_get_leave_day_array_at_month_leave: '.c-czhgvJ > .c-dYCejv > div[type="button"].c-iUgzqv-lgczji-color-purple',
+      class_param_get_leave_day_array_at_month_leave: '.c-czhgvJ > .c-dYCejv > div[type="button"].c-iUgzqv-bstzIN-color-purple',
       class_param_get_duration: 'button.c-hTuUst',
       class_param_count_element_button: 'div[type="button"]',
       //class_param_get_day_and_holiday_at_month_weekday: '.c-ezanJe-fmLUio-isHoliday-true',
@@ -550,7 +552,7 @@ function getLeaveDayArrayAtWeekcycle() {
     
     const hasPurple = dayDiv.querySelector(window.myCropPlugin.class_param_vacation_button);
     if (hasPurple) {
-      vacationDays.push(`${index}휴가`); // index + 1 이 날짜 (1일부터 시작)
+      vacationDays.push(`${index + 1}휴가`);
     }
   });
 
@@ -628,7 +630,7 @@ function getLeaveDayArrayAtMonthType(month) {
 
     const header = div.querySelector(window.myCropPlugin.class_param_get_leave_day_array_at_month_child_header);
     if (header && !header.className.includes(window.myCropPlugin.class_param_get_leave_day_array_at_month_child_include)) {
-      const dayString = header.querySelector('.c-grczgB')?.innerText.trim();
+      const dayString = header.querySelector('.c-rgLcI')?.innerText.trim();
       //console.log('유효한 날짜:', dayString);
 
       day = parseInt(dayString)

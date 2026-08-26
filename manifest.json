@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Flex 근무 계산 확장",
-  "version": "0.1.17",
+  "version": "0.1.18",
   "description": "Flex 근무 페이지에서 편의기능 제공",
   "permissions": ["activeTab", "scripting", "tabs"],
   "action": {
@@ -24,17 +24,11 @@
   "background": {
     "service_worker": "background.js"
   },
-  "host_permissions": [
-    "*://flex.team/*"
-  ],
+  "host_permissions": ["*://flex.team/*"],
   "content_scripts": [
     {
-      "matches": [
-        "*://flex.team/*"
-      ],
-      "js": [
-        "content.js"
-      ],
+      "matches": ["*://flex.team/*"],
+      "js": ["content.js"],
       "css": ["content.css"]
     }
   ]
