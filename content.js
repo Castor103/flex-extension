@@ -7,9 +7,12 @@
       class_param_month_need_worktime_left_time: 'div.c-bAbSmS',
       class_param_workpage_view_type: '.c-bHdqUR > *',    // workpageViewType : 주기, 월, 주
       
-      class_param_work_status: 'div.c-gzEFDl > *',        // 현재 근무 상태: 근무중, 휴게중, ...
-      class_param_work_time: 'div.c-klJrXp',
-      class_param_work_time_side: 'div.c-kIJHMp',
+      //class_param_work_status: 'div.c-gzEFDl > *',      // 현재 근무 상태: 근무중, 휴게중, ...
+      //class_param_work_time: 'div.c-klJrXp',
+      //class_param_work_time_side: 'div.c-kIJHMp',      // 위젯이 사이드바로 이동하면서 사라짐
+      // 근무 상태 위젯이 사이드바 헤더로 이동. 텍스트도 '근무 중' / '휴게 중' 처럼 공백 포함으로 변경됨
+      class_param_work_status: 'div.wy66fg3',            // 현재 근무 상태: 근무 중, 휴게 중, ...
+      class_param_work_time: 'div.wy66fg4 time',         // <time datetime="P0Y0M0DT5H18M0S">5시간 18분</time>
       
       // 토, 일, 공휴일 검색용 클래스 필터값
       //class_param_get_day_and_holiday_parent: 'c-lldrJN',
@@ -107,7 +110,8 @@ function getData(calculate_flex_worktime_mode, workpageViewType) {
   //console.log(`monthWorkLeftTime: ${monthWorkLeftTime}`);
 
   // 현재 근무 상태 = 근무중, 휴게중, ...
-  const workStatus = getElementsWithClass(window.myCropPlugin.class_param_work_status)
+  // flex UI 변경으로 '근무 중'처럼 공백이 들어오므로 제거 후 비교한다.
+  const workStatus = getElementsWithClass(window.myCropPlugin.class_param_work_status).replace(/\s+/g, '')
 
   let leaveDays = 0
   let numberUnuseLeaveDay = 0
@@ -120,16 +124,7 @@ function getData(calculate_flex_worktime_mode, workpageViewType) {
   const isSearchinfoMatch = isCurrentYearAndMonthInRange(workSearchDurationInfo)
 
   // 금일 근로 시간 = 8시간 57분
-  let todayWorkTime = getElementsWithClass(window.myCropPlugin.class_param_work_time)
-  let todayWorkTimeSide = getElementsWithClass(window.myCropPlugin.class_param_work_time_side)
-
-  if (workStatus === 'N/A') {
-    todayWorkTime = '0분'
-  }
-
-  if (workStatus === '휴게중') {
-    todayWorkTime = todayWorkTimeSide
-  }
+  const todayWorkTime = getTodayWorkTime(workStatus)
 
   let totalWeekdays = 0
   let workdoneDayCount = 0
@@ -534,6 +529,56 @@ function getElementsWithClass(findTargetClassName) {
       return textArray[0]
     }
   }
+}
+
+// 금일 근로 시간.
+// flex UI 변경 후 사이드바 위젯(div.wy66fg4 > time)이 유일한 출처이지만,
+// 휴게중에는 이 값이 "휴게 경과시간"으로 바뀌고 금일 근로시간은 DOM 어디에도 남지 않는다.
+// (당월 총 근로시간 c-lmXAkT 및 일별 셀도 진행중인 금일분은 반영하지 않음)
+// 따라서 근무중에 읽은 값을 window.myCropPlugin에 캐시해두고 휴게중에는 그것을 재사용한다.
+// content.js는 background.js가 2초마다 재주입하지만 window는 문서 단위로 유지되므로 캐시가 살아있다.
+function getTodayWorkTime(workStatus) {
+  if (workStatus === '근무중') {
+    const minutes = getWorkTimeMinutes()
+    if (minutes !== null) {
+      window.myCropPlugin.cache_today_work_minutes = minutes
+      return formatMinutesToTimeText(minutes)
+    }
+  }
+
+  if (workStatus === '휴게중') {
+    const cached = window.myCropPlugin.cache_today_work_minutes
+    if (cached !== undefined) {
+      return formatMinutesToTimeText(cached)
+    }
+  }
+
+  return '0분'
+}
+
+// <time datetime="P0Y0M0DT5H18M0S">5시간 18분</time>
+// datetime 속성(ISO 8601 duration)을 우선 사용하고, 없으면 표시 텍스트를 파싱한다.
+function getWorkTimeMinutes() {
+  const element = document.querySelector(window.myCropPlugin.class_param_work_time)
+
+  if (!element) {
+    return null
+  }
+
+  const isoDuration = element.getAttribute('datetime')
+  const isoMatch = isoDuration && isoDuration.match(/T(?:(\d+)H)?(?:(\d+)M)?/)
+
+  if (isoMatch && (isoMatch[1] !== undefined || isoMatch[2] !== undefined)) {
+    return Number(isoMatch[1] || 0) * 60 + Number(isoMatch[2] || 0)
+  }
+
+  const parsed = parseTime(element.textContent.trim())
+
+  return parsed.hour * 60 + parsed.minute
+}
+
+function formatMinutesToTimeText(minutes) {
+  return `${Math.floor(minutes / 60)}시간 ${minutes % 60}분`
 }
 
 function getLeaveDayArrayAtWeekcycle() {
