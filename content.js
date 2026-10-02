@@ -43,7 +43,8 @@
       class_param_get_leave_day_array_at_month_child_include: 'c-eRtORt-jjNddC-isWithinIntervalOfInterest-false',
 
       //class_param_get_leave_day_array_at_month_leave: '.c-czhgvJ > .c-dYCejv > div[type="button"].c-iUgzqv-lgczji-color-purple',
-      class_param_get_leave_day_array_at_month_leave: '.c-czhgvJ > .c-dYCejv > div[type="button"].c-iUgzqv-bstzIN-color-purple',
+      //class_param_get_leave_day_array_at_month_leave: '.c-czhgvJ > .c-dYCejv > div[type="button"].c-iUgzqv-bstzIN-color-purple',
+      class_param_get_leave_day_array_at_month_leave: '.c-czhgvJ > .c-dYCejv > div[type="button"][class*="-color-purple"]',
       class_param_get_duration: 'button.c-hTuUst',
       class_param_count_element_button: 'div[type="button"]',
       //class_param_get_day_and_holiday_at_month_weekday: '.c-ezanJe-fmLUio-isHoliday-true',
@@ -135,12 +136,22 @@ function getData(calculate_flex_worktime_mode, workpageViewType) {
 
   if (workpageViewType === '월') {
 
-    const leaveDayArray = getLeaveDayArrayAtMonthType(durationInfo.month)
+    // 월 보기로 바로 진입(새로고침)하면 월 달력(c-pwDdi)이 그려지지만,
+    // 주기 -> 월로 전환하면 주기 달력(c-lldrJN)이 남아 있으므로 현재 DOM 기준으로 선택한다.
+    const isMonthCalendar = document.querySelectorAll(window.myCropPlugin.class_param_get_leave_day_array_at_month_parent).length > 0
+
+    const leaveDayArray = isMonthCalendar
+      ? getLeaveDayArrayAtMonthType(durationInfo.month)
+      : getLeaveDayArrayAtWeekcycle() || []
     //console.log('leaveDayArray월:', leaveDayArray)
     leaveDays = leaveDayArray.length
     numberUnuseLeaveDay = countUnusedLeaveDays(leaveDayArray)
 
-    findObj = getDayAndHolidayAtMonthType(durationInfo.month)
+    findObj = isMonthCalendar
+      ? getDayAndHolidayAtMonthType(durationInfo.month)
+      : getLeaveDayArrayAtWeekcycleNew()
+    // 일자 칸을 못 찾으면 공휴일 0개로 잘못 계산되므로 표시하지 않는다.
+    if (!findObj || findObj.parantObj.length === 0) return undefined
     childNodesArray = findObj.parantObj
     //console.log(`childNodesArray: [${childNodesArray}]`)
 
@@ -161,6 +172,7 @@ function getData(calculate_flex_worktime_mode, workpageViewType) {
 
     const leaveDayArray = getLeaveDayArrayAtWeekcycle()
     findObj = getLeaveDayArrayAtWeekcycleNew()
+    if (!findObj) return undefined
 
     //console.log('leaveDayArray주기:', leaveDayArray)
     leaveDays = leaveDayArray.length
@@ -498,9 +510,13 @@ function formatTimeString(timeString) {
 function waitForSectionElement() {
   return new Promise((resolve) => {
     const timeout1 = setTimeout('', 330)
+    const startTime = Date.now()
     const checkSection = () => {
       const sectionElement = document.querySelector('section[data-scope="page"][data-part="content"]',)
-      if (sectionElement) {
+      // 달력 일자 칸이 렌더링되기 전에 계산하면 공휴일이 0개로 잡히므로 일자 칸까지 기다린다. ('주' 보기 등 일자 칸이 없는 경우를 위해 최대 5초)
+      const dayDivCount = document.querySelectorAll(window.myCropPlugin.class_param_all_day_divs).length
+        + document.querySelectorAll(window.myCropPlugin.class_param_get_leave_day_array_at_month_parent).length
+      if (sectionElement && (dayDivCount > 1 || Date.now() - startTime > 5000)) {
         clearTimeout(timeout1) // 타임아웃 해제
         resolve(true) // 조건이 충족되면 완료
       } else {
@@ -824,7 +840,8 @@ function getDayAndHolidayAtMonthType(month) {
 
     const header = div.querySelector(window.myCropPlugin.class_param_get_leave_day_array_at_month_child_header);
     if (header && !header.className.includes(window.myCropPlugin.class_param_get_leave_day_array_at_month_child_include)) {
-      const dayString = header.querySelector('.c-grczgB')?.innerText.trim();
+      //const dayString = header.querySelector('.c-grczgB')?.innerText.trim();
+      const dayString = header.querySelector('.c-rgLcI')?.innerText.trim();
       //console.log('유효한 날짜:', dayString);
 
       day = parseInt(dayString)
