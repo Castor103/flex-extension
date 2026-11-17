@@ -4,7 +4,8 @@
     window.myCropPlugin = {
       class_param_check_load: '.c-upfCI',
       class_param_total_workdone_time: 'span.c-lmXAkT',
-      class_param_month_need_worktime_left_time: 'div.c-bAbSmS',
+      //class_param_month_need_worktime_left_time: 'div.c-bAbSmS',
+      class_param_month_need_worktime_left_time: 'p.c-hSTiUQ',   // 월 기준 근무시간까지 남은 시간 (예: -48:03)
       class_param_workpage_view_type: '.c-bHdqUR > *',    // workpageViewType : 주기, 월, 주
       
       //class_param_work_status: 'div.c-gzEFDl > *',      // 현재 근무 상태: 근무중, 휴게중, ...
@@ -45,7 +46,8 @@
       //class_param_get_leave_day_array_at_month_leave: '.c-czhgvJ > .c-dYCejv > div[type="button"].c-iUgzqv-lgczji-color-purple',
       //class_param_get_leave_day_array_at_month_leave: '.c-czhgvJ > .c-dYCejv > div[type="button"].c-iUgzqv-bstzIN-color-purple',
       class_param_get_leave_day_array_at_month_leave: '.c-czhgvJ > .c-dYCejv > div[type="button"][class*="-color-purple"]',
-      class_param_get_duration: 'button.c-hTuUst',
+      //class_param_get_duration: 'button.c-hTuUst',
+      class_param_get_duration: 'button._1r4xlq50',              // 조회 기간 (예: 2026. 11. 1 – 11. 30)
       class_param_count_element_button: 'div[type="button"]',
       //class_param_get_day_and_holiday_at_month_weekday: '.c-ezanJe-fmLUio-isHoliday-true',
       class_param_get_day_and_holiday_at_month_weekday: '.c-bElvsc-fmLUio-colorType-holiday',
