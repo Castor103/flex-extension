@@ -3,10 +3,14 @@
   if (!window.myCropPlugin) {
     window.myCropPlugin = {
       class_param_check_load: '.c-upfCI',
-      class_param_total_workdone_time: 'span.c-lmXAkT',
+      //class_param_total_workdone_time: 'span.c-lmXAkT',
+      class_param_total_workdone_time: 'span.f94mwg2',           // 당월 총 근무시간 (예: 116:13)
       //class_param_month_need_worktime_left_time: 'div.c-bAbSmS',
-      class_param_month_need_worktime_left_time: 'p.c-hSTiUQ',   // 월 기준 근무시간까지 남은 시간 (예: -48:03)
-      class_param_workpage_view_type: '.c-bHdqUR > *',    // workpageViewType : 주기, 월, 주
+      //class_param_month_need_worktime_left_time: 'p.c-hSTiUQ',
+      class_param_month_need_worktime_left_time: 'p.f42e1j4',    // 월 기준 근무시간까지 남은 시간 (예: -48:03)
+      //class_param_workpage_view_type: '.c-bHdqUR > *',
+      // 보기 전환이 탭에서 드롭다운으로 변경. 첫 번째 버튼이 보기 선택
+      class_param_workpage_view_type: 'div.lh75e40 > button:first-child [data-part="inner-content"]',    // workpageViewType : 주기, 월, 주
       
       //class_param_work_status: 'div.c-gzEFDl > *',      // 현재 근무 상태: 근무중, 휴게중, ...
       //class_param_work_time: 'div.c-klJrXp',
@@ -19,17 +23,21 @@
       //class_param_get_day_and_holiday_parent: 'c-lldrJN',
       //class_param_get_day_and_holiday_parent: 'c-bElvsc',
       class_param_get_day_and_holiday_parent: 'section.c-krCgSO > div.c-lldrJN div.c-gNZGXI div.c-dNTXeN',
-      class_param_get_day_and_holiday_child: 'c-bElvsc-fmLUio-colorType-holiday',
+      //class_param_get_day_and_holiday_child: 'c-bElvsc-fmLUio-colorType-holiday',
+      class_param_get_day_and_holiday_child: '_1cjlabr2',        // 토, 일, 공휴일 날짜 색상
       
       class_param_wait_for_section_element: 'section[data-scope="page"][data-part="content"]',
       //class_param_all_day_divs: 'div.c-hzjAHE',
-      class_param_all_day_divs: 'section.c-krCgSO > div.c-lldrJN div.c-gNZGXI div.c-fJRAUt',
+      //class_param_all_day_divs: 'section.c-krCgSO > div.c-lldrJN div.c-gNZGXI div.c-fJRAUt',
+      class_param_all_day_divs: 'section.c-krCgSO div.c-gNZGXI > div._1wdpmls1',   // 주기 일자 칸 (날짜 + 요일)
       //class_param_all_day_divs: 'section.c-krCgSO > div.c-lldrJN > div.c-gNZGXI',
       class_param_day_divs_except_head_row: 'c-bxtDoy',
       //class_param_vacation_button: 'div[type="button"].c-drVVmS-lgczji-color-purple',
       //class_param_vacation_button: 'div[type="button"].c-drVVmS-lgczji-color-purple',
       //class_param_vacation_button: 'div[type="button"].c-ciGsq-lgczji-color-purple',
       class_param_vacation_button: 'div[type="button"].c-iyXem-bstzIN-color-purple',
+      // 주기 일별 근무 기록 행. 첫 행(c-bxtDoy)은 헤더
+      class_param_leave_day_divs: 'section.c-krCgSO section._1kn9v00 > div._1kn9v01 > div.c-hzjAHE',
       
       
       
@@ -45,12 +53,15 @@
 
       //class_param_get_leave_day_array_at_month_leave: '.c-czhgvJ > .c-dYCejv > div[type="button"].c-iUgzqv-lgczji-color-purple',
       //class_param_get_leave_day_array_at_month_leave: '.c-czhgvJ > .c-dYCejv > div[type="button"].c-iUgzqv-bstzIN-color-purple',
-      class_param_get_leave_day_array_at_month_leave: '.c-czhgvJ > .c-dYCejv > div[type="button"][class*="-color-purple"]',
+      //class_param_get_leave_day_array_at_month_leave: '.c-czhgvJ > .c-dYCejv > div[type="button"][class*="-color-purple"]',
+      class_param_get_leave_day_array_at_month_leave: '.c-czhgvJ > ._11ksz3e6 > div[type="button"][class*="-color-purple"]',
+      class_param_month_day_number: '._1cjlabr6',               // 월 달력 칸의 날짜 숫자
       //class_param_get_duration: 'button.c-hTuUst',
       class_param_get_duration: 'button._1r4xlq50',              // 조회 기간 (예: 2026. 11. 1 – 11. 30)
       class_param_count_element_button: 'div[type="button"]',
       //class_param_get_day_and_holiday_at_month_weekday: '.c-ezanJe-fmLUio-isHoliday-true',
-      class_param_get_day_and_holiday_at_month_weekday: '.c-bElvsc-fmLUio-colorType-holiday',
+      //class_param_get_day_and_holiday_at_month_weekday: '.c-bElvsc-fmLUio-colorType-holiday',
+      class_param_get_day_and_holiday_at_month_weekday: '._1cjlabr2',
       
       // 상태, 설정 등 전역으로 필요한 것들
     }
@@ -602,7 +613,8 @@ function formatMinutesToTimeText(minutes) {
 function getLeaveDayArrayAtWeekcycle() {
   
   //const allDayDivs = Array.from(document.querySelectorAll(window.myCropPlugin.class_param_all_day_divs));
-  const allDayDivs = Array.from(document.querySelectorAll('section.c-eqXmhd > div.c-PJLV > div.c-hzjAHE'));
+  //const allDayDivs = Array.from(document.querySelectorAll('section.c-eqXmhd > div.c-PJLV > div.c-hzjAHE'));
+  const allDayDivs = Array.from(document.querySelectorAll(window.myCropPlugin.class_param_leave_day_divs));
   const vacationDays = [];
   
   //console.log('allDayDivs', allDayDivs);
@@ -693,7 +705,8 @@ function getLeaveDayArrayAtMonthType(month) {
 
     const header = div.querySelector(window.myCropPlugin.class_param_get_leave_day_array_at_month_child_header);
     if (header && !header.className.includes(window.myCropPlugin.class_param_get_leave_day_array_at_month_child_include)) {
-      const dayString = header.querySelector('.c-rgLcI')?.innerText.trim();
+      //const dayString = header.querySelector('.c-rgLcI')?.innerText.trim();
+      const dayString = header.querySelector(window.myCropPlugin.class_param_month_day_number)?.innerText.trim();
       //console.log('유효한 날짜:', dayString);
 
       day = parseInt(dayString)
@@ -843,7 +856,8 @@ function getDayAndHolidayAtMonthType(month) {
     const header = div.querySelector(window.myCropPlugin.class_param_get_leave_day_array_at_month_child_header);
     if (header && !header.className.includes(window.myCropPlugin.class_param_get_leave_day_array_at_month_child_include)) {
       //const dayString = header.querySelector('.c-grczgB')?.innerText.trim();
-      const dayString = header.querySelector('.c-rgLcI')?.innerText.trim();
+      //const dayString = header.querySelector('.c-rgLcI')?.innerText.trim();
+      const dayString = header.querySelector(window.myCropPlugin.class_param_month_day_number)?.innerText.trim();
       //console.log('유효한 날짜:', dayString);
 
       day = parseInt(dayString)
